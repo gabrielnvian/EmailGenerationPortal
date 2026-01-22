@@ -1,6 +1,6 @@
 import {Persona} from "./personas.model";
 import {CsvToPersonas} from "./csv-to-personas";
-import csv from "../static/data.csv?raw"
+import csv from "./data.csv?raw"
 
 export const personas: Persona[] = [];
 

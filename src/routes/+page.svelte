@@ -6,7 +6,7 @@
 
 	let idx: number;
 
-	$: selected = personas[idx];
+	$: selected = $personas[idx];
 </script>
 
 <button on:click={() => goto(`${base}/list`)}>List</button>
@@ -14,7 +14,7 @@
 <br/>
 
 <select autofocus bind:value={idx} id="cars" name="cars">
-	{#each personas as persona, idx}
+	{#each $personas as persona, idx}
 		<option value={idx}>
 			{persona.name} at {persona.company}
 		</option>

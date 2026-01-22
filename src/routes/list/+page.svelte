@@ -3,7 +3,7 @@
 	import Persona from "../Persona.svelte";
 </script>
 
-{#each personas as persona}
+{#each $personas as persona}
 	<Persona {persona}/>
 
 	<br/>

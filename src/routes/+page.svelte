@@ -4,7 +4,7 @@
 	import {goto} from "$app/navigation";
 	import {base} from '$app/paths';
 
-	let idx: number;
+	let idx: number = 0;
 
 	$: selected = $personas[idx];
 </script>

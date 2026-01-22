@@ -1,7 +1,7 @@
 import {Persona} from "./personas.model";
 
 export function CsvToPersonas(csv: string): Persona[] {
-	const lines = csv.split("\r\n");
+	const lines = csv.split(/\r?\n/);
 	const personas: Persona[] = [];
 
 	for (let i = 1; i < lines.length; i++) {

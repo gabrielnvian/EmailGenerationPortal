@@ -1,13 +1,15 @@
 <script lang="ts">
 	import {personas} from "../personas";
 	import Persona from "./Persona.svelte";
+	import {goto} from "$app/navigation";
+	import {base} from '$app/paths';
 
 	let idx: number;
 
 	$: selected = personas[idx];
 </script>
 
-<a href="/list">List</a>
+<button on:click={() => goto(`${base}/list`)}>List</button>
 <br/>
 <br/>
 

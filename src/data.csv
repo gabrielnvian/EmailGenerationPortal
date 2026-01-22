@@ -1,0 +1,16 @@
+name,jobTitle,company,phone,email,supervisor
+David Mayfield,Data Analyst,MacroHard,9518925819,DavidM239@macrohard.com,3
+John Becker,CEO,MacroHard,8582231234,JBecker004@macrohard.com,3
+Andrew Greene,Junior Software Engineer,MacroHard,6196360476,agreene007@macrohard.com,3
+Sandra McCoy,Senior Software Engineer,MacroHard,8583360996,SMcCoy2000@macrohard.com,3
+Brian Peterson ,Project Manager,MacroHard,4834925971,bpeterson5832@macrohard.com,3
+Jordan Becker,Chief of Staff,MacroHard,8582130342,jbecker005@macrohard.com,3
+Anna Smith,Chief Delivery Coordinator,Helios Forge Energy,7609900223,annasmith1@heliosforge.com,8
+Rebecca Ben David,Delivery Coordinator,Helios Forge Energy,7603343456,rebeccabdavid@heliosforge.com,8
+Robert George,,Helios Forge Energy,6192563050,obert,
+Marina Rophaiel,CFO,Helios Forge Energy,,,
+Jordan Hale,Owner/Lead Technician,Northline Air,7605843928,jordan.hale@northlineair.com,10
+Megan Ruiz,Operations Manager,Northline Air,7609483827,megan.ruiz@northlineair.com,10
+Tyler Brooks,Senior HVAC Installer,Northline Air,1424834027,tyler.brooks@northlineair.com,10
+Evan Cole ,HVAC Service Technician,Northline Air,7609584736,evan.cole@northlineair.com,10
+Samantha Lee,Customer Support & Scheduling,Northline Air,2914726384,samantha.lee@northlineair.com,10

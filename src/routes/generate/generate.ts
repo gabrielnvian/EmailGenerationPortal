@@ -4,3 +4,8 @@
  * The n8n workflow is going to run on database trigger,
  * decreasing the number of emails to be generated at every iteration
  */
+
+
+export function queueEmails(field: string, company: string, n: number) {
+
+}

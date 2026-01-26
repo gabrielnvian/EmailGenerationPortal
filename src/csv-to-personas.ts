@@ -9,7 +9,7 @@ export function CsvToPersonas(csv: string): Persona[] {
 
 		const currentLine = lines[i].split(",");
 
-		const supervisorIdx = parseInt(currentLine[5]);
+		const supervisorIdx = parseInt(currentLine[6]);
 
 		const supervisor: Persona | null = isNaN(supervisorIdx)
 			? null

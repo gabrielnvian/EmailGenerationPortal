@@ -1,6 +1,6 @@
 <script lang="ts">
 	import {personas} from "../personas";
-	import Persona from "./Persona.svelte";
+	import PersonaCard from "./PersonaCard.svelte";
 	import {goto} from "$app/navigation";
 	import {base} from '$app/paths';
 
@@ -29,5 +29,5 @@
 <br/>
 
 {#if selected}
-	<Persona persona={selected}/>
+	<PersonaCard persona={selected}/>
 {/if}

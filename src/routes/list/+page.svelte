@@ -1,6 +1,6 @@
 <script lang="ts">
 	import {personas} from "../../personas";
-	import Persona from "../Persona.svelte";
+	import PersonaCard from "../PersonaCard.svelte";
 	import {goto} from "$app/navigation";
 	import {base} from "$app/paths";
 </script>
@@ -10,7 +10,7 @@
 <br/>
 
 {#each $personas as persona}
-	<Persona {persona}/>
+	<PersonaCard {persona}/>
 
 	<br/>
 	<br/>

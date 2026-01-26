@@ -2,6 +2,7 @@
 	import type {Persona} from "../personas.model";
 
 	export let persona: Persona;
+	export let noSup: boolean = false;
 </script>
 
 <strong>Name: {persona.name}</strong><br/>
@@ -11,7 +12,7 @@
 <span>Phone: {persona.phone}</span><br/>
 <span>Email: {persona.email}</span><br/>
 
-{#if persona.supervisor}
+{#if persona.supervisor && !noSup}
 	<span>Supervisor:</span>
 	<ul>
 		<svelte:self persona={persona.supervisor}/>

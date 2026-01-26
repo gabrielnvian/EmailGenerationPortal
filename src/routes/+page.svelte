@@ -11,6 +11,8 @@
 
 <button on:click={() => goto(`${base}/list`)}>List</button>
 <br/>
+<button on:click={() => goto(`${base}/generate`)}>Generate</button>
+<br/>
 <br/>
 
 <select autofocus bind:value={idx} id="cars" name="cars">

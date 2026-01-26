@@ -1,26 +1,44 @@
-Name,Job title,Company,Phone,Email,Supervisor (row number)
- David Mayfield,Data Analyst,MacroHard,9518925819,DavidM239@macrohard.com,3
-John Becker,CEO,MacroHard,8582231234,JBecker004@macrohard.com,3
-Andrew Greene,Junior Software Engineer,MacroHard,6196360476,agreene007@macrohard.com,3
-Sandra McCoy,Senior Software Engineer,MacroHard,8583360996,SMcCoy2000@macrohard.com,3
-Brian Peterson ,Project Manager,MacroHard,4834925971,bpeterson5832@macrohard.com,3
-Jordan Becker,Chief of Staff,MacroHard,8582130342,jbecker005@macrohard.com,3
-Anna Smith,Chief Delivery Coordinator,Helios Forge Energy,7609900223,annasmith1@heliosforge.com,8
-Rebecca Ben David,Delivery Coordinator,Helios Forge Energy,7603343456,rebeccabdavid@heliosforge.com,8
-Robert George,Delivery Driver,Helios Forge Energy,6192563050,robertgeorge2@heliosforge.com,8
-Marina Rophaiel,CFO,Helios Forge Energy,2913467894,marinarophaiel@heliosforge.com,8
-Jordan Hale,Owner/Lead Technician,Northline Air,7605843928,jordan.hale@northlineair.com,12
-Megan Ruiz,Operations Manager,Northline Air,7609483827,megan.ruiz@northlineair.com,12
-Tyler Brooks,Senior HVAC Installer,Northline Air,1424834027,tyler.brooks@northlineair.com,12
-Evan Cole ,HVAC Service Technician,Northline Air,7609584736,evan.cole@northlineair.com,12
-Samantha Lee,Customer Support & Scheduling,Northline Air,2914726384,samantha.lee@northlineair.com,12
-Hayden Forsyth,QA Department Manager,JetHead Development,8756588201,hforsyth@jetheaddev.com,17
-Jack Lacsamana,Lead Test Engineer,JetHead Development,8281101008,j.lac@jetheaddev.com,17
-Ernie Meyers,Database Test Engineer,JetHead Development,8284667846,e.meyers@jetheaddev.com,17
-Horace Wilcox,Embedded Test Engineer,JetHead Development,6195245562,hwilcox3@jetheaddev.com,17
-Michael Froelich,Web Test Engineer,JetHead Development,7607198820,m.froelich@jetheaddev.com,17
-Barry Poldark,Lead Aerospace Engineer,Heavenspear Defense,6198896523,barry.poldark@heavenspeardef.com,22
-Rachel Wayans,Senior Electrical Engineer,Heavenspear Defense,7607652039,r.wayans@heavenspeardef.com,22
-Ryan Datter,Principal Software Engineer,Heavenspear Defense,8280984523,ryan.datter@heavenspeardef.com,22
-Missy Grubbs,Senior Computer Engineer,Heavenspear Defense,7609929940,missygrubbs01@heavenspeardef.com,22
-Alan Neumann,Principal Physics Engineer,Heavenspear Defense,2198828463,a.neumann@heavenspeardef.com,22
+Name,Job title,Company,Field,Phone,Email,Supervisor (row number)
+David Mayfield,Data Analyst,MacroHard,Software,9518925819,DavidM239@macrohard.com,3
+John Becker,CEO,MacroHard,Software,8582231234,JBecker004@macrohard.com,3
+Andrew Greene,Junior Software Engineer,MacroHard,Software,6196360476,agreene007@macrohard.com,3
+Sandra McCoy,Senior Software Engineer,MacroHard,Software,8583360996,SMcCoy2000@macrohard.com,3
+Brian Peterson ,Project Manager,MacroHard,Software,4834925971,bpeterson5832@macrohard.com,3
+Jordan Becker,Chief of Staff,MacroHard,Software,8582130342,jbecker005@macrohard.com,3
+Anna Smith,Chief Delivery Coordinator,Helios Forge Energy,Energy,7609900223,annasmith1@heliosforge.com,8
+Rebecca Ben David,Delivery Coordinator,Helios Forge Energy,Energy,7603343456,rebeccabdavid@heliosforge.com,8
+Robert George,Delivery Driver,Helios Forge Energy,Energy,6192563050,robertgeorge2@heliosforge.com,8
+Marina Rophaiel,CFO,Helios Forge Energy,Energy,2913467894,marinarophaiel@heliosforge.com,8
+Jordan Hale,Owner/Lead Technician,Northline Air,HVAC,7605843928,jordan.hale@northlineair.com,12
+Megan Ruiz,Operations Manager,Northline Air,HVAC,7609483827,megan.ruiz@northlineair.com,12
+Tyler Brooks,Senior HVAC Installer,Northline Air,HVAC,1424834027,tyler.brooks@northlineair.com,12
+Evan Cole ,HVAC Service Technician,Northline Air,HVAC,7609584736,evan.cole@northlineair.com,12
+Samantha Lee,Customer Support & Scheduling,Northline Air,HVAC,2914726384,samantha.lee@northlineair.com,12
+Hayden Forsyth,QA Department Manager,JetHead Development,Software,8756588201,hforsyth@jetheaddev.com,17
+Jack Lacsamana,Lead Test Engineer,JetHead Development,Software,8281101008,j.lac@jetheaddev.com,17
+Ernie Meyers,Database Test Engineer,JetHead Development,Software,8284667846,e.meyers@jetheaddev.com,17
+Horace Wilcox,Embedded Test Engineer,JetHead Development,Software,6195245562,hwilcox3@jetheaddev.com,17
+Michael Froelich,Web Test Engineer,JetHead Development,Software,7607198820,m.froelich@jetheaddev.com,17
+Barry Poldark,Lead Aerospace Engineer,Heavenspear Defense,Defense,6198896523,barry.poldark@heavenspeardef.com,22
+Rachel Wayans,Senior Electrical Engineer,Heavenspear Defense,Defense,7607652039,r.wayans@heavenspeardef.com,22
+Ryan Datter,Principal Software Engineer,Heavenspear Defense,Defense,8280984523,ryan.datter@heavenspeardef.com,22
+Missy Grubbs,Senior Computer Engineer,Heavenspear Defense,Defense,7609929940,missygrubbs01@heavenspeardef.com,22
+Alan Neumann,Principal Physics Engineer,Heavenspear Defense,Defense,2198828463,a.neumann@heavenspeardef.com,22
+Jake Evans,Lead Scientist,Ridge Biotechnologies,Biotechnologies,9203346446,j.evans@ridgebio.com,27
+Emily Carter,Senior Research Associate,Ridge Biotechnologies,Biotechnologies,9203346789,e.carter@ridgebio.com,27
+Daniel Moreno,Bioinformatics Scientist,Ridge Biotechnologies,Biotechnologies,9203346891,d.moreno@ridgebio.com,27
+Priya Nandakumar,Molecular Biology Specialist,Ridge Biotechnologies,Biotechnologies,9203347554,p.nandakumar@ridgebio.com,27
+Lucas Bennett,Laboratory Operations Scientist,Ridge Biotechnologies,Biotechnologies,9203347019,l.bennett@ridgebio.com,27
+Eleanor Vance,Director,Pinnacle Solutions,Sales & Marketing,5294264839,evance@pinnacleoutreach.com,32
+Marcus Chen,Senior Marketing Strategist,Pinnacle Solutions,Sales & Marketing,1429754925,mchen@pinnacleoutreach.com,32
+Simone Garcia,Lead Sales Development Rep,Pinnacle Solutions,Sales & Marketing,3894767745,sgarcia@pinnacleoutreach.com,32
+David Okafor,Sales Development Rep ,Pinnacle Solutions,Sales & Marketing,8819402843,dokafor@pinnacleoutreach.com,32
+Chloe Patel ,Marketing & Analytics Coordinator,Pinnacle Solutions,Sales & Marketing,3817484473,cpatel@pinnacleoutreach.com,32
+Collin Weirs,Sculptor,"Statues, Inc.",Decoration,9257674434,collinweirs@statuesinc.com,43
+Adrian Comms,Sales Agent,"Statues, Inc.",Decoration,7608561025,a.comms@statuesinc.com,43
+Thea Bran,Painter,"Statues, Inc.",Decoration,6192003004,t.bran@statuesinc.com,43
+Jameson Creek,Lead Pickleball Coach,MYPadL,Sports,7604452746,j.creek@mypadl.com,46
+Merry Polish,Assistant Pickleball Coach,MYPadL,Sports,6195547835,merrypolish@mypadl.com,46
+Tyson Breeves,Pickleball Tutor,MYPadL,Sports,6198873336,tybree@mypadl.com,46
+Hardunka Chug,Pickleball Tutor,MYPadL,Sports,9256198191,chugster@mypadl.com,46
+Brittany Flowers,Pickleball Tutor,MYPadL,Sports,4422846607,b.flowers@mypadl.com,46

@@ -33,5 +33,4 @@
 	<PersonaCard noSup {persona}/>
 
 	<br/>
-	<br/>
 {/each}

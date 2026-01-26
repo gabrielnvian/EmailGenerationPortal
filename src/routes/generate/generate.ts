@@ -6,13 +6,20 @@
  */
 import {Persona} from "../../personas.model";
 
-export async function queueEmails(field: string, company: string, n: number) {
+export async function queueEmails(field: string, idea: string, personas: Persona[], n: number) {
   const url = "http://localhost:5678/webhook-test/ea07a640-6fbe-4334-939c-fec4c2eada89";
-  const reposnse = await fetch(url, {
+
+  const request = new Request(url, {
     method: "POST",
     body: JSON.stringify({
-      "name": ,
-      "company": company,
+      "field": field,
+      "idea": idea,
+      "personas": personas.toString(),
+      "emailCount": n
     })
-  })
+  });
+
+  const response = await fetch(request);
+  const json = await response.json();
+  console.log(json);
 }

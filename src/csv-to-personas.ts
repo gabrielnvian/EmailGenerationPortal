@@ -21,6 +21,7 @@ export function CsvToPersonas(csv: string): Persona[] {
 			currentLine[2],
 			currentLine[3],
 			currentLine[4],
+			currentLine[5],
 			supervisor
 		);
 

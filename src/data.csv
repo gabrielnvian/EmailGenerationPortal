@@ -1,5 +1,5 @@
-name,jobTitle,company,phone,email,supervisor
-David Mayfield,Data Analyst,MacroHard,9518925819,DavidM239@macrohard.com,3
+Name,Job title,Company,Phone,Email,Supervisor (row number)
+ David Mayfield,Data Analyst,MacroHard,9518925819,DavidM239@macrohard.com,3
 John Becker,CEO,MacroHard,8582231234,JBecker004@macrohard.com,3
 Andrew Greene,Junior Software Engineer,MacroHard,6196360476,agreene007@macrohard.com,3
 Sandra McCoy,Senior Software Engineer,MacroHard,8583360996,SMcCoy2000@macrohard.com,3
@@ -7,10 +7,20 @@ Brian Peterson ,Project Manager,MacroHard,4834925971,bpeterson5832@macrohard.com
 Jordan Becker,Chief of Staff,MacroHard,8582130342,jbecker005@macrohard.com,3
 Anna Smith,Chief Delivery Coordinator,Helios Forge Energy,7609900223,annasmith1@heliosforge.com,8
 Rebecca Ben David,Delivery Coordinator,Helios Forge Energy,7603343456,rebeccabdavid@heliosforge.com,8
-Robert George,,Helios Forge Energy,6192563050,obert,
-Marina Rophaiel,CFO,Helios Forge Energy,,,
-Jordan Hale,Owner/Lead Technician,Northline Air,7605843928,jordan.hale@northlineair.com,10
-Megan Ruiz,Operations Manager,Northline Air,7609483827,megan.ruiz@northlineair.com,10
-Tyler Brooks,Senior HVAC Installer,Northline Air,1424834027,tyler.brooks@northlineair.com,10
-Evan Cole ,HVAC Service Technician,Northline Air,7609584736,evan.cole@northlineair.com,10
-Samantha Lee,Customer Support & Scheduling,Northline Air,2914726384,samantha.lee@northlineair.com,10
+Robert George,Delivery Driver,Helios Forge Energy,6192563050,robertgeorge2@heliosforge.com,8
+Marina Rophaiel,CFO,Helios Forge Energy,2913467894,marinarophaiel@heliosforge.com,8
+Jordan Hale,Owner/Lead Technician,Northline Air,7605843928,jordan.hale@northlineair.com,12
+Megan Ruiz,Operations Manager,Northline Air,7609483827,megan.ruiz@northlineair.com,12
+Tyler Brooks,Senior HVAC Installer,Northline Air,1424834027,tyler.brooks@northlineair.com,12
+Evan Cole ,HVAC Service Technician,Northline Air,7609584736,evan.cole@northlineair.com,12
+Samantha Lee,Customer Support & Scheduling,Northline Air,2914726384,samantha.lee@northlineair.com,12
+Hayden Forsyth,QA Department Manager,JetHead Development,8756588201,hforsyth@jetheaddev.com,17
+Jack Lacsamana,Lead Test Engineer,JetHead Development,8281101008,j.lac@jetheaddev.com,17
+Ernie Meyers,Database Test Engineer,JetHead Development,8284667846,e.meyers@jetheaddev.com,17
+Horace Wilcox,Embedded Test Engineer,JetHead Development,6195245562,hwilcox3@jetheaddev.com,17
+Michael Froelich,Web Test Engineer,JetHead Development,7607198820,m.froelich@jetheaddev.com,17
+Barry Poldark,Lead Aerospace Engineer,Heavenspear Defense,6198896523,barry.poldark@heavenspeardef.com,22
+Rachel Wayans,Senior Electrical Engineer,Heavenspear Defense,7607652039,r.wayans@heavenspeardef.com,22
+Ryan Datter,Principal Software Engineer,Heavenspear Defense,8280984523,ryan.datter@heavenspeardef.com,22
+Missy Grubbs,Senior Computer Engineer,Heavenspear Defense,7609929940,missygrubbs01@heavenspeardef.com,22
+Alan Neumann,Principal Physics Engineer,Heavenspear Defense,2198828463,a.neumann@heavenspeardef.com,22

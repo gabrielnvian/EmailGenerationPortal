@@ -38,7 +38,7 @@
 {#if field}
 	<PersonaSelector personas={filteredPersonas} bind:selectedPersonas/>
 {:else}
-	<p style="color:red">Select a field to view personas</p>
+	<p style="color:Tomato">Select a field to view personas</p>
 {/if}
 
 <br/>

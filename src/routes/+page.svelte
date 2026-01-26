@@ -15,7 +15,8 @@
 <br/>
 <br/>
 
-<select autofocus bind:value={idx} id="cars" name="cars">
+<label>Persona</label>
+<select autofocus bind:value={idx}>
 	{#each $personas as persona, idx}
 		<option value={idx}>
 			{persona.name} at {persona.company}

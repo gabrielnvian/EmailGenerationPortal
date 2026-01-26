@@ -62,6 +62,6 @@
 <br/>
 <br/>
 
-<button on:click={() => queueEmails()}>
+<button on:click={() => queueEmails(field, idea, $selectedPersonas, n)}>
 	Queue up emails
 </button>

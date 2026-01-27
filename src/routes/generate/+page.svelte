@@ -82,11 +82,6 @@
 <br/>
 <br/>
 <br/>
-<br/>
-
-
-<br/>
-<br/>
 
 <button on:click={() => queueEmails(fromField, toField, idea, $fromPersonas, $toPersonas, n)}>
 	Queue up emails

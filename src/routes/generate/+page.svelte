@@ -7,24 +7,29 @@
 	import PersonaSelector from "../../PersonaSelector.svelte";
 	import {writable, type Writable} from "svelte/store";
 
-	let field: string = "";
+	let fromField: string = "";
+	let toField: string = "";
 	let idea: string = "";
 	let n: number = 10;
 
-	let selectedPersonas: Writable<Persona[]> = writable([]);
+	let fromPersonas: Writable<Persona[]> = writable([]);
+	let toPersonas: Writable<Persona[]> = writable([]);
 
-	$: filteredPersonas = $personas.filter(persona => persona.field === field);
+	$: filteredFromPersonas = $personas.filter(p => p.field === fromField);
+	$: filteredToPersonas   = $personas.filter(p => p.field === toField);
+
 
 	// Using Sets to clear out duplicate values
-	$: fields = new Set($personas.map(persona => persona.field));
+	$: fields = Array.from(new Set($personas.map(p => p.field))).sort();
 </script>
 
 <button on:click={() => goto(`${base}/`)}>Home</button>
 <br/>
 <br/>
 
+<h2>FROM</h2>
 <label>Field</label>
-<select bind:value={field} on:change={() => $selectedPersonas = []}>
+<select bind:value={fromField} on:change={() => $fromPersonas = []}>
 	{#each fields as field}
 		<option value={field}>
 			{field}
@@ -35,14 +40,35 @@
 <br/>
 <br/>
 
-{#if field}
-	<PersonaSelector personas={filteredPersonas} bind:selectedPersonas/>
+{#if fromField}
+	<PersonaSelector personas={filteredFromPersonas} selectedPersonas="{fromPersonas}" />
+{:else}
+	<p style="color:red">Select a field to view personas</p>
+{/if}
+
+<p>--------------------------------------</p>
+
+<h2>TO</h2>
+<label>Field</label>
+<select bind:value={toField} on:change={() => $toPersonas = []}>
+	{#each fields as field}
+		<option value={field}>
+			{field}
+		</option>
+	{/each}
+</select>
+<br/>
+<br/>
+
+{#if toField}
+	<PersonaSelector personas={filteredToPersonas} selectedPersonas="{toPersonas}"/>
 {:else}
 	<p style="color:red">Select a field to view personas</p>
 {/if}
 
 <br/>
 <br/>
+<p>--------------------------------------</p>
 
 <label>Initial prompt (idea)</label>
 <textarea bind:value={idea}/>
@@ -56,12 +82,7 @@
 <br/>
 <br/>
 <br/>
-<br/>
 
-
-<br/>
-<br/>
-
-<button on:click={() => queueEmails(field, idea, $selectedPersonas, n)}>
+<button on:click={() => queueEmails(fromField, toField, idea, $fromPersonas, $toPersonas, n)}>
 	Queue up emails
 </button>

@@ -11,12 +11,13 @@
 	let toField: string = "";
 	let idea: string = "";
 	let n: number = 10;
+	let length: number = 100;
 
 	let fromPersonas: Writable<Persona[]> = writable([]);
 	let toPersonas: Writable<Persona[]> = writable([]);
 
 	$: filteredFromPersonas = $personas.filter(p => p.field === fromField);
-	$: filteredToPersonas   = $personas.filter(p => p.field === toField);
+	$: filteredToPersonas = $personas.filter(p => p.field === toField);
 
 
 	// Using Sets to clear out duplicate values
@@ -41,7 +42,7 @@
 <br/>
 
 {#if fromField}
-	<PersonaSelector personas={filteredFromPersonas} selectedPersonas="{fromPersonas}" />
+	<PersonaSelector personas={filteredFromPersonas} selectedPersonas="{fromPersonas}"/>
 {:else}
 	<p style="color:red">Select a field to view personas</p>
 {/if}
@@ -81,8 +82,18 @@
 
 <br/>
 <br/>
+
+<label>Number of characters</label>
+<input bind:value={length} type="number"/>
+
+<br/>
+<br/>
 <br/>
 
-<button on:click={() => queueEmails(fromField, toField, idea, $fromPersonas, $toPersonas, n)}>
-	Queue up emails
+<button on:click={() => queueEmails(fromField, toField, idea, $fromPersonas, $toPersonas, n, length, 1)}>
+	Queue up emails 1
+</button>
+
+<button on:click={() => queueEmails(fromField, toField, idea, $fromPersonas, $toPersonas, n, length, 2)}>
+	Queue up emails 2
 </button>

@@ -1,7 +1,18 @@
 import {Persona} from "../../personas.model";
 
-export async function queueEmails(fromField: string, toField: string, idea: string, fromPersonas: Persona[], toPersonas: Persona[], n: number) {
-	const url = "https://n8n.tail068f9.ts.net/webhook/generate-email";
+export async function queueEmails(
+	fromField: string,
+	toField: string,
+	idea: string,
+	fromPersonas: Persona[],
+	toPersonas: Persona[],
+	n: number,
+	length: number,
+	version: number
+) {
+	const url = version === 1
+		? "https://n8n.tail068f9.ts.net/webhook/generate-email"
+		: "https://n8n.tail068f9.ts.net/webhook/3726feba-2e41-424a-a5d9-04713248c600";
 
 	const response = await fetch(url, {
 		method: "POST",
@@ -14,7 +25,10 @@ export async function queueEmails(fromField: string, toField: string, idea: stri
 			idea,
 			from: fromPersonas.map(persona => JSON.stringify(persona)),
 			to: toPersonas.map(persona => JSON.stringify(persona)),
-			emailCount: n
+			emailCount: n,
+			length
 		})
 	});
+
+	console.log(response)
 }

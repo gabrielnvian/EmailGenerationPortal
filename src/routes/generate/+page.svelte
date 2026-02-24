@@ -2,7 +2,7 @@
 	import {goto} from "$app/navigation";
 	import {base} from '$app/paths';
 	import {personas} from "../../personas";
-	import {queueEmails} from "./generate";
+	import {coldStart, queueEmails} from "./generate";
 	import type {Persona} from "../../personas.model";
 	import PersonaSelector from "../../PersonaSelector.svelte";
 	import {writable, type Writable} from "svelte/store";
@@ -90,10 +90,20 @@
 <br/>
 <br/>
 
-<button on:click={() => queueEmails(fromField, toField, idea, $fromPersonas, $toPersonas, n, length, 1)}>
-	Queue up emails 1
+<button on:click={() => coldStart()}>
+	Cold start
 </button>
 
+<br/>
+<br/>
+
+<button on:click={() => queueEmails(fromField, toField, idea, $fromPersonas, $toPersonas, n, length, 1)}>
+	Queue up emails with old workflow
+</button>
+
+<br/>
+<br/>
+
 <button on:click={() => queueEmails(fromField, toField, idea, $fromPersonas, $toPersonas, n, length, 2)}>
-	Queue up emails 2
+	Queue up emails with new 2 agents workflow
 </button>

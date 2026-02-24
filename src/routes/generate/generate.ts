@@ -32,3 +32,15 @@ export async function queueEmails(
 
 	console.log(response)
 }
+
+export async function coldStart() {
+	const response = await fetch('https://n8n.tail068f9.ts.net/webhook/ollama-cold-start', {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: "{}"
+	});
+
+	console.log(response)
+}

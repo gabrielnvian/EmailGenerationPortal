@@ -1,0 +1,96 @@
+@import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap");
+
+@plugin "daisyui";
+
+[data-theme="feather"] {
+  color-scheme: dark;
+
+  --color-primary: oklch(0.96 0.14 168.9);
+  --color-primary-content: oklch(0.13 0 0);
+  --color-secondary: oklch(0.54 0.26 295);
+  --color-secondary-content: oklch(1 0 0);
+  --color-accent: oklch(0.67 0.18 233);
+  --color-accent-content: oklch(0.13 0 0);
+  --color-neutral: oklch(0.18 0.01 270);
+  --color-neutral-content: oklch(1 0 0);
+  --color-base-100: oklch(0.12 0.007 270);
+  --color-base-200: oklch(0.09 0.006 270);
+  --color-base-300: oklch(0.15 0.009 270);
+  --color-base-content: oklch(0.97 0 0);
+  --color-info: oklch(0.67 0.18 233);
+  --color-info-content: oklch(0.13 0 0);
+  --color-success: oklch(0.96 0.14 168.9);
+  --color-success-content: oklch(0.13 0 0);
+  --color-warning: oklch(0.63 0.22 295);
+  --color-warning-content: oklch(1 0 0);
+  --color-error: oklch(0.62 0.21 15);
+  --color-error-content: oklch(1 0 0);
+
+  --radius-selector: 0.75rem;
+  --radius-field: 0.75rem;
+  --radius-box: 1rem;
+}
+
+* {
+  font-family: 'Inter', sans-serif;
+}
+
+/* Clean flat surface card */
+.surface {
+  background: #0d0d12;
+  border: 1px solid #1e1e2a;
+  border-radius: 14px;
+}
+
+.surface-interactive {
+  background: #0d0d12;
+  border: 1px solid #1e1e2a;
+  border-radius: 14px;
+  transition: border-color 0.2s ease, background 0.2s ease;
+  cursor: pointer;
+}
+.surface-interactive:hover {
+  background: #111118;
+  border-color: #2d2d3d;
+}
+
+/* Inputs / selects */
+.field {
+  background: #0a0a0e;
+  border: 1px solid #22222e;
+  border-radius: 10px;
+  color: white;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  width: 100%;
+  transition: border-color 0.2s ease;
+  outline: none;
+}
+.field:focus {
+  border-color: #00f9cf66;
+  box-shadow: 0 0 0 3px #00f9cf0d;
+}
+
+/* Buttons */
+.btn-primary {
+  transition: opacity 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+.btn-primary:hover:not(:disabled) {
+  box-shadow: 0 0 24px #00f9cf44;
+  transform: translateY(-1px);
+}
+.btn-secondary {
+  transition: opacity 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+.btn-secondary:hover:not(:disabled) {
+  box-shadow: 0 0 24px #8c45ff44;
+  transform: translateY(-1px);
+}
+
+/* Thin accent divider */
+.divider-glow {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #00f9cf22, #8c45ff22, transparent);
+  margin: 0.5rem 0;
+}

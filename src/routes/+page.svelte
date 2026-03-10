@@ -11,6 +11,14 @@
 	let errorMessage = '';
 	let successMessage = '';
 
+	const MAX_NAME_LENGTH = 100;
+	const MAX_JOB_TITLE_LENGTH = 120;
+	const MAX_COMPANY_LENGTH = 120;
+	const MAX_FIELD_LENGTH = 80;
+	const MAX_PHONE_LENGTH = 15;
+	const MIN_PHONE_LENGTH = 7;
+	const MAX_EMAIL_LENGTH = 254;
+
 	let form = {
 		name: '',
 		jobTitle: '',
@@ -38,6 +46,10 @@
 			.slice(0, 4);
 
 	$: supervisorOptions = [...$personas].sort((a, b) => a.name.localeCompare(b.name));
+
+	$: if (form.isSelfSupervisor) {
+		form.supervisorEmail = '';
+	}
 
 	$: duplicateNameWarning =
 			form.name.trim() &&
@@ -79,44 +91,130 @@
 	}
 
 	function sanitizePhone() {
-		form.phone = form.phone.replace(/\D/g, '');
+		form.phone = form.phone.replace(/\D/g, '').slice(0, MAX_PHONE_LENGTH);
+	}
+
+	function normalizeEmail(value: string) {
+		return value.trim().toLowerCase();
+	}
+
+	function buildNormalizedPayload() {
+		return {
+			name: form.name.trim(),
+			jobTitle: form.jobTitle.trim(),
+			company: form.company.trim(),
+			field: form.field.trim(),
+			phone: form.phone.trim(),
+			email: normalizeEmail(form.email),
+			supervisorEmail: normalizeEmail(form.supervisorEmail),
+			isSelfSupervisor: form.isSelfSupervisor
+		};
+	}
+
+	function isValidEmail(value: string) {
+		return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+	}
+
+	function validateForm(payload: ReturnType<typeof buildNormalizedPayload>): string {
+		if (
+				!payload.name ||
+				!payload.jobTitle ||
+				!payload.company ||
+				!payload.field ||
+				!payload.email
+		) {
+			return 'Please fill all required fields.';
+		}
+
+		if (payload.name.length > MAX_NAME_LENGTH) {
+			return `Full Name cannot exceed ${MAX_NAME_LENGTH} characters.`;
+		}
+
+		if (payload.jobTitle.length > MAX_JOB_TITLE_LENGTH) {
+			return `Job Title cannot exceed ${MAX_JOB_TITLE_LENGTH} characters.`;
+		}
+
+		if (payload.company.length > MAX_COMPANY_LENGTH) {
+			return `Company cannot exceed ${MAX_COMPANY_LENGTH} characters.`;
+		}
+
+		if (payload.field.length > MAX_FIELD_LENGTH) {
+			return `Field cannot exceed ${MAX_FIELD_LENGTH} characters.`;
+		}
+
+		if (payload.email.length > MAX_EMAIL_LENGTH) {
+			return `Email cannot exceed ${MAX_EMAIL_LENGTH} characters.`;
+		}
+
+		if (!isValidEmail(payload.email)) {
+			return 'Enter a valid email address.';
+		}
+
+		if (payload.phone) {
+			if (!/^\d+$/.test(payload.phone)) {
+				return 'Phone number must contain digits only.';
+			}
+
+			if (payload.phone.length < MIN_PHONE_LENGTH || payload.phone.length > MAX_PHONE_LENGTH) {
+				return `Phone number must be between ${MIN_PHONE_LENGTH} and ${MAX_PHONE_LENGTH} digits.`;
+			}
+		}
+
+		if (!payload.isSelfSupervisor && !payload.supervisorEmail) {
+			return 'Select a supervisor, or mark the persona as self-supervised.';
+		}
+
+		if (!payload.isSelfSupervisor && payload.supervisorEmail && !isValidEmail(payload.supervisorEmail)) {
+			return 'Selected supervisor email is invalid.';
+		}
+
+		const sameEmailExists = $personas.some(
+				(p) => p.email.trim().toLowerCase() === payload.email
+		);
+		if (sameEmailExists) {
+			return 'That email already exists.';
+		}
+
+		const samePhoneExists =
+				!!payload.phone &&
+				$personas.some((p) => p.phone.trim() !== '' && p.phone.trim() === payload.phone);
+		if (samePhoneExists) {
+			return 'That phone number already exists.';
+		}
+
+		const sameNameAndCompanyExists = $personas.some(
+				(p) =>
+						p.name.trim().toLowerCase() === payload.name.toLowerCase() &&
+						p.company.trim().toLowerCase() === payload.company.toLowerCase()
+		);
+		if (sameNameAndCompanyExists) {
+			return 'That name + company combination already exists.';
+		}
+
+		return '';
 	}
 
 	async function savePersona() {
 		errorMessage = '';
 		successMessage = '';
 
-		const requiredMissing =
-				!form.name.trim() ||
-				!form.jobTitle.trim() ||
-				!form.company.trim() ||
-				!form.field.trim() ||
-				!form.email.trim();
+		const payload = buildNormalizedPayload();
+		const validationError = validateForm(payload);
 
-		if (requiredMissing) {
-			errorMessage = 'Please fill all required fields.';
-			return;
-		}
-
-		if (form.phone && !/^\d+$/.test(form.phone)) {
-			errorMessage = 'Phone number must contain digits only.';
-			return;
-		}
-
-		if (!form.isSelfSupervisor && !form.supervisorEmail) {
-			errorMessage = 'Select a supervisor, or mark the persona as self-supervised.';
+		if (validationError) {
+			errorMessage = validationError;
 			return;
 		}
 
 		isSaving = true;
 
 		try {
-			const res = await fetch(`./api/personas`, {
+			const res = await fetch('./api/personas', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify(form)
+				body: JSON.stringify(payload)
 			});
 
 			const data = await res.json();
@@ -128,9 +226,8 @@
 
 			await personas.reload();
 
-			// select the newly added persona if possible
 			const newIndex = $personas.findIndex(
-					(p) => p.email.trim().toLowerCase() === form.email.trim().toLowerCase()
+					(p) => p.email.trim().toLowerCase() === payload.email
 			);
 
 			if (newIndex >= 0) {
@@ -146,8 +243,9 @@
 
 			resetForm();
 		} catch (err) {
-			console.error(err);
-			errorMessage = 'An unexpected error occurred while saving the persona.';
+			console.error('savePersona failed:', err);
+			errorMessage =
+					err instanceof Error ? err.message : 'An unexpected error occurred while saving the persona.';
 		} finally {
 			isSaving = false;
 		}
@@ -155,7 +253,6 @@
 </script>
 
 <div class="flex flex-col gap-10">
-	<!-- Hero header -->
 	<div class="flex flex-col gap-3 pt-4">
 		<div class="flex items-center gap-2 mb-1">
 			<div class="w-2 h-2 rounded-full" style="background:#00f9cf; box-shadow: 0 0 8px #00f9cf;"></div>
@@ -181,9 +278,8 @@
 		</div>
 	{/if}
 
-	<!-- Action cards -->
 	<div class="grid grid-cols-2 gap-3">
-		<button class="surface-interactive p-5 flex flex-col gap-3 text-left" on:click={() => goto(`list`)}>
+		<button class="surface-interactive p-5 flex flex-col gap-3 text-left" on:click={() => goto('list')}>
 			<div class="w-9 h-9 rounded-xl flex items-center justify-center text-base" style="background:#29b0ff15; color:#29b0ff;">
 				👥
 			</div>
@@ -194,7 +290,7 @@
 			<span class="text-white/20 text-xs mt-auto">View all →</span>
 		</button>
 
-		<button class="surface-interactive p-5 flex flex-col gap-3 text-left" on:click={() => goto(`generate`)}>
+		<button class="surface-interactive p-5 flex flex-col gap-3 text-left" on:click={() => goto('generate')}>
 			<div class="w-9 h-9 rounded-xl flex items-center justify-center text-base" style="background:#00f9cf15; color:#00f9cf;">
 				✉️
 			</div>
@@ -206,7 +302,6 @@
 		</button>
 	</div>
 
-	<!-- Field breakdown -->
 	{#if fields.length > 0}
 		<div class="flex flex-col gap-3">
 			<p class="text-xs text-white/30 font-medium">Top fields</p>
@@ -221,7 +316,6 @@
 		</div>
 	{/if}
 
-	<!-- Add persona button -->
 	<div class="flex items-center justify-end">
 		<button
 				class="px-4 py-2 rounded-2xl text-sm font-semibold border transition-all hover:-translate-y-[1px]"
@@ -234,7 +328,6 @@
 
 	<div class="divider-glow"></div>
 
-	<!-- Persona preview -->
 	<div class="flex flex-col gap-4">
 		<div class="flex items-center justify-between">
 			<p class="text-sm font-medium text-white/60">Preview a persona</p>
@@ -303,39 +396,50 @@
 
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 				<div class="flex flex-col gap-2">
-					<label class="text-sm text-white/65 font-medium">Full Name</label>
-					<input class="field" bind:value={form.name} placeholder="Name" />
+					<label class="text-sm text-white/65 font-medium" for="persona-name">Full Name</label>
+					<input id="persona-name" class="field" bind:value={form.name} placeholder="Name" maxlength={MAX_NAME_LENGTH} required />
 				</div>
 
 				<div class="flex flex-col gap-2">
-					<label class="text-sm text-white/65 font-medium">Job Title</label>
-					<input class="field" bind:value={form.jobTitle} placeholder="Job Title" />
+					<label class="text-sm text-white/65 font-medium" for="persona-job-title">Job Title</label>
+					<input id="persona-job-title" class="field" bind:value={form.jobTitle} placeholder="Job Title" maxlength={MAX_JOB_TITLE_LENGTH} required />
 				</div>
 
 				<div class="flex flex-col gap-2">
-					<label class="text-sm text-white/65 font-medium">Company</label>
-					<input class="field" bind:value={form.company} placeholder="Company" />
+					<label class="text-sm text-white/65 font-medium" for="persona-company">Company</label>
+					<input id="persona-company" class="field" bind:value={form.company} placeholder="Company" maxlength={MAX_COMPANY_LENGTH} required />
 				</div>
 
 				<div class="flex flex-col gap-2">
-					<label class="text-sm text-white/65 font-medium">Field</label>
-					<input class="field" bind:value={form.field} placeholder="Field" />
+					<label class="text-sm text-white/65 font-medium" for="persona-field">Field</label>
+					<input id="persona-field" class="field" bind:value={form.field} placeholder="Field" maxlength={MAX_FIELD_LENGTH} required />
 				</div>
 
 				<div class="flex flex-col gap-2">
-					<label class="text-sm text-white/65 font-medium">Phone (optional)</label>
+					<label class="text-sm text-white/65 font-medium" for="persona-phone">Phone (optional)</label>
 					<input
+							id="persona-phone"
 							class="field"
 							bind:value={form.phone}
 							on:input={sanitizePhone}
 							inputmode="numeric"
 							placeholder="Digits only"
+							maxlength={MAX_PHONE_LENGTH}
 					/>
 				</div>
 
 				<div class="flex flex-col gap-2">
-					<label class="text-sm text-white/65 font-medium">Email Address</label>
-					<input class="field" bind:value={form.email} type="email" placeholder="Email" />
+					<label class="text-sm text-white/65 font-medium" for="persona-email">Email Address</label>
+					<input
+							id="persona-email"
+							class="field"
+							bind:value={form.email}
+							type="email"
+							placeholder="Email"
+							maxlength={MAX_EMAIL_LENGTH}
+							autocomplete="off"
+							required
+					/>
 				</div>
 			</div>
 
@@ -359,8 +463,13 @@
 				</div>
 
 				<div class="mt-4 flex flex-col gap-2">
-					<label class="text-sm text-white/65 font-medium">Supervisor</label>
-					<select class="field" bind:value={form.supervisorEmail} disabled={form.isSelfSupervisor}>
+					<label class="text-sm text-white/65 font-medium" for="persona-supervisor">Supervisor</label>
+					<select
+							id="persona-supervisor"
+							class="field"
+							bind:value={form.supervisorEmail}
+							disabled={form.isSelfSupervisor}
+					>
 						<option value="">Select supervisor</option>
 						{#each supervisorOptions as supervisor}
 							<option value={supervisor.email}>

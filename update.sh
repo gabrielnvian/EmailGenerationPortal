@@ -4,6 +4,8 @@
 set -e
 git pull
 
+pnpm install --frozen-lockfile
+
 # Run server-side unit tests and generate HTML report to a temp dir.
 # (./build/ is wiped by the build step, so we copy the report in afterwards.)
 pnpm vitest run --project server --reporter=verbose --reporter=html --outputFile.html=./vitest-report/index.html

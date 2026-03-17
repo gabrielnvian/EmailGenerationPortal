@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { personas } from '../personas';
+	import {onMount} from 'svelte';
+	import {personas} from '../personas';
 	import PersonaCard from './PersonaCard.svelte';
-	import { goto } from '$app/navigation';
+	import {goto} from '$app/navigation';
 
 	let idx: number = 0;
 
@@ -42,8 +42,8 @@
 	}, {} as Record<string, number>);
 
 	$: fields = Object.entries(fieldCounts)
-			.sort((a, b) => b[1] - a[1])
-			.slice(0, 4);
+		.sort((a, b) => b[1] - a[1])
+		.slice(0, 4);
 
 	$: supervisorOptions = [...$personas].sort((a, b) => a.name.localeCompare(b.name));
 
@@ -52,10 +52,10 @@
 	}
 
 	$: duplicateNameWarning =
-			form.name.trim() &&
-			$personas.some((p) => p.name.trim().toLowerCase() === form.name.trim().toLowerCase())
-					? 'Warning: a persona with this same name already exists.'
-					: '';
+		form.name.trim() &&
+		$personas.some((p) => p.name.trim().toLowerCase() === form.name.trim().toLowerCase())
+			? 'Warning: a persona with this same name already exists.'
+			: '';
 
 	onMount(async () => {
 		try {
@@ -117,11 +117,11 @@
 
 	function validateForm(payload: ReturnType<typeof buildNormalizedPayload>): string {
 		if (
-				!payload.name ||
-				!payload.jobTitle ||
-				!payload.company ||
-				!payload.field ||
-				!payload.email
+			!payload.name ||
+			!payload.jobTitle ||
+			!payload.company ||
+			!payload.field ||
+			!payload.email
 		) {
 			return 'Please fill all required fields.';
 		}
@@ -169,23 +169,23 @@
 		}
 
 		const sameEmailExists = $personas.some(
-				(p) => p.email.trim().toLowerCase() === payload.email
+			(p) => p.email.trim().toLowerCase() === payload.email
 		);
 		if (sameEmailExists) {
 			return 'That email already exists.';
 		}
 
 		const samePhoneExists =
-				!!payload.phone &&
-				$personas.some((p) => p.phone.trim() !== '' && p.phone.trim() === payload.phone);
+			!!payload.phone &&
+			$personas.some((p) => p.phone.trim() !== '' && p.phone.trim() === payload.phone);
 		if (samePhoneExists) {
 			return 'That phone number already exists.';
 		}
 
 		const sameNameAndCompanyExists = $personas.some(
-				(p) =>
-						p.name.trim().toLowerCase() === payload.name.toLowerCase() &&
-						p.company.trim().toLowerCase() === payload.company.toLowerCase()
+			(p) =>
+				p.name.trim().toLowerCase() === payload.name.toLowerCase() &&
+				p.company.trim().toLowerCase() === payload.company.toLowerCase()
 		);
 		if (sameNameAndCompanyExists) {
 			return 'That name + company combination already exists.';
@@ -227,7 +227,7 @@
 			await personas.reload();
 
 			const newIndex = $personas.findIndex(
-					(p) => p.email.trim().toLowerCase() === payload.email
+				(p) => p.email.trim().toLowerCase() === payload.email
 			);
 
 			if (newIndex >= 0) {
@@ -238,14 +238,14 @@
 
 			showAddPersonaModal = false;
 			successMessage = data.warning
-					? `Persona added successfully. ${data.warning}`
-					: 'Persona added successfully.';
+				? `Persona added successfully. ${data.warning}`
+				: 'Persona added successfully.';
 
 			resetForm();
 		} catch (err) {
 			console.error('savePersona failed:', err);
 			errorMessage =
-					err instanceof Error ? err.message : 'An unexpected error occurred while saving the persona.';
+				err instanceof Error ? err.message : 'An unexpected error occurred while saving the persona.';
 		} finally {
 			isSaving = false;
 		}
@@ -259,7 +259,7 @@
 			<span class="text-xs text-white/30 font-medium tracking-wide">Email Generation Portal</span>
 		</div>
 		<h1 class="text-5xl font-black tracking-tight leading-none">
-			Generate<br />
+			Generate<br/>
 			<span style="background: linear-gradient(100deg, #00f9cf, #29b0ff 50%, #8c45ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
 				targeted emails.
 			</span>
@@ -280,7 +280,8 @@
 
 	<div class="grid grid-cols-2 gap-3">
 		<button class="surface-interactive p-5 flex flex-col gap-3 text-left" on:click={() => goto('list')}>
-			<div class="w-9 h-9 rounded-xl flex items-center justify-center text-base" style="background:#29b0ff15; color:#29b0ff;">
+			<div class="w-9 h-9 rounded-xl flex items-center justify-center text-base"
+				 style="background:#29b0ff15; color:#29b0ff;">
 				👥
 			</div>
 			<div>
@@ -291,7 +292,8 @@
 		</button>
 
 		<button class="surface-interactive p-5 flex flex-col gap-3 text-left" on:click={() => goto('generate')}>
-			<div class="w-9 h-9 rounded-xl flex items-center justify-center text-base" style="background:#00f9cf15; color:#00f9cf;">
+			<div class="w-9 h-9 rounded-xl flex items-center justify-center text-base"
+				 style="background:#00f9cf15; color:#00f9cf;">
 				✉️
 			</div>
 			<div>
@@ -317,10 +319,18 @@
 	{/if}
 
 	<div class="flex items-center justify-end">
+		<a
+				class="px-4 py-2 rounded-2xl text-sm font-semibold border transition-all hover:-translate-y-[1px]"
+				href="/EmailGenerationPortal/test-report/"
+				style="background:rgba(255,255,255,0.06); border-color:rgba(255,255,255,0.12); backdrop-filter:blur(14px); color:#f8fbff; box-shadow:0 10px 30px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.06);"
+		>
+			See test coverage
+		</a>
+
 		<button
 				class="px-4 py-2 rounded-2xl text-sm font-semibold border transition-all hover:-translate-y-[1px]"
-				style="background:rgba(255,255,255,0.06); border-color:rgba(255,255,255,0.12); backdrop-filter:blur(14px); color:#f8fbff; box-shadow:0 10px 30px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.06);"
 				on:click={openAddPersonaModal}
+				style="background:rgba(255,255,255,0.06); border-color:rgba(255,255,255,0.12); backdrop-filter:blur(14px); color:#f8fbff; box-shadow:0 10px 30px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.06);"
 		>
 			+ Add Persona
 		</button>
@@ -331,7 +341,7 @@
 	<div class="flex flex-col gap-4">
 		<div class="flex items-center justify-between">
 			<p class="text-sm font-medium text-white/60">Preview a persona</p>
-			<select class="field" style="width:auto; max-width:280px;" bind:value={idx}>
+			<select bind:value={idx} class="field" style="width:auto; max-width:280px;">
 				{#each $personas as persona, i}
 					<option value={i}>{persona.name} — {persona.company}</option>
 				{/each}
@@ -339,7 +349,7 @@
 		</div>
 
 		{#if selected}
-			<PersonaCard persona={selected} />
+			<PersonaCard persona={selected}/>
 		{/if}
 	</div>
 </div>
@@ -362,7 +372,8 @@
 					</div>
 					<h2 class="text-3xl font-black tracking-tight text-white">Create a new persona</h2>
 					<p class="text-sm leading-relaxed text-white/45 max-w-xl">
-						Add a custom contact to the persona list. This will be appended to the CSV and shown immediately in the app.
+						Add a custom contact to the persona list. This will be appended to the CSV and shown immediately
+						in the app.
 					</p>
 				</div>
 
@@ -397,22 +408,26 @@
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 				<div class="flex flex-col gap-2">
 					<label class="text-sm text-white/65 font-medium" for="persona-name">Full Name</label>
-					<input id="persona-name" class="field" bind:value={form.name} placeholder="Name" maxlength={MAX_NAME_LENGTH} required />
+					<input id="persona-name" class="field" bind:value={form.name} placeholder="Name"
+						   maxlength={MAX_NAME_LENGTH} required/>
 				</div>
 
 				<div class="flex flex-col gap-2">
 					<label class="text-sm text-white/65 font-medium" for="persona-job-title">Job Title</label>
-					<input id="persona-job-title" class="field" bind:value={form.jobTitle} placeholder="Job Title" maxlength={MAX_JOB_TITLE_LENGTH} required />
+					<input id="persona-job-title" class="field" bind:value={form.jobTitle} placeholder="Job Title"
+						   maxlength={MAX_JOB_TITLE_LENGTH} required/>
 				</div>
 
 				<div class="flex flex-col gap-2">
 					<label class="text-sm text-white/65 font-medium" for="persona-company">Company</label>
-					<input id="persona-company" class="field" bind:value={form.company} placeholder="Company" maxlength={MAX_COMPANY_LENGTH} required />
+					<input id="persona-company" class="field" bind:value={form.company} placeholder="Company"
+						   maxlength={MAX_COMPANY_LENGTH} required/>
 				</div>
 
 				<div class="flex flex-col gap-2">
 					<label class="text-sm text-white/65 font-medium" for="persona-field">Field</label>
-					<input id="persona-field" class="field" bind:value={form.field} placeholder="Field" maxlength={MAX_FIELD_LENGTH} required />
+					<input id="persona-field" class="field" bind:value={form.field} placeholder="Field"
+						   maxlength={MAX_FIELD_LENGTH} required/>
 				</div>
 
 				<div class="flex flex-col gap-2">
@@ -457,7 +472,9 @@
 							This persona is self-supervised
 						</label>
 						<p class="text-xs leading-relaxed text-white/45">
-							The supervisors are stored by row number. If this person supervises themself, their own row number will be saved as supervisor reference. Otherwise, the supervisor can be selected below.
+							The supervisors are stored by row number. If this person supervises themself, their own row
+							number will be saved as supervisor reference. Otherwise, the supervisor can be selected
+							below.
 						</p>
 					</div>
 				</div>

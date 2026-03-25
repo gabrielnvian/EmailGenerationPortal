@@ -19,7 +19,7 @@
 	$: filteredFromPersonas = $personas.filter(p => p.field === fromField);
 	$: filteredToPersonas = $personas.filter(p => p.field === toField);
 	$: fields = Array.from(new Set($personas.map(p => p.field))).sort();
-	$: canQueue = $fromPersonas.length > 0 && $toPersonas.length > 0 && idea.trim().length > 0;
+	$: canQueue = $fromPersonas.length > 0 && $toPersonas.length > 0 && idea.trim().length > 0 && Number.isFinite(n) && n >= 1 && Number.isFinite(length) && length >= 1;
 
 	type Status = { type: 'idle' } | { type: 'loading'; label: string } | { type: 'success'; label: string } | { type: 'error'; message: string };
 	let status: Status = { type: 'idle' };
@@ -62,7 +62,7 @@
 				<label class="text-xs text-white/30" for="from-field">Field</label>
 				<select id="from-field" class="field" bind:value={fromField} on:change={() => $fromPersonas = []}>
 					<option value="" disabled>Select a field...</option>
-					{#each fields as field}
+					{#each fields as field (field)}
 						<option value={field}>{field}</option>
 					{/each}
 				</select>
@@ -84,7 +84,7 @@
 				<label class="text-xs text-white/30" for="to-field">Field</label>
 				<select id="to-field" class="field" bind:value={toField} on:change={() => $toPersonas = []}>
 					<option value="" disabled>Select a field...</option>
-					{#each fields as field}
+					{#each fields as field (field)}
 						<option value={field}>{field}</option>
 					{/each}
 				</select>
@@ -112,11 +112,11 @@
 		<div class="grid grid-cols-2 gap-4">
 			<div class="flex flex-col gap-1.5">
 				<label class="text-xs text-white/30" for="n-input">Number of emails</label>
-				<input id="n-input" class="field" bind:value={n} type="number" min="1"/>
+				<input id="n-input" class="field" bind:value={n} type="number" min="1" max="1000"/>
 			</div>
 			<div class="flex flex-col gap-1.5">
 				<label class="text-xs text-white/30" for="length-input">Characters per email</label>
-				<input id="length-input" class="field" bind:value={length} type="number" min="1"/>
+				<input id="length-input" class="field" bind:value={length} type="number" min="1" max="10000"/>
 			</div>
 		</div>
 

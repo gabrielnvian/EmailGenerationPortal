@@ -35,7 +35,7 @@
 
 	<!-- Grid -->
 	<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-		{#each filtered as persona}
+		{#each filtered as persona (persona.email)}
 			<PersonaCard {persona}/>
 		{/each}
 	</div>

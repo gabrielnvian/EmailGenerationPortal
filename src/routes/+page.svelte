@@ -47,8 +47,10 @@
 
 	$: supervisorOptions = [...$personas].sort((a, b) => a.name.localeCompare(b.name));
 
-	$: if (form.isSelfSupervisor) {
-		form.supervisorEmail = '';
+	function handleSelfSupervisorChange() {
+		if (form.isSelfSupervisor) {
+			form.supervisorEmail = '';
+		}
 	}
 
 	$: duplicateNameWarning =
@@ -61,7 +63,7 @@
 		try {
 			await personas.reload();
 		} catch (err) {
-			console.error(err);
+			errorMessage = 'Failed to load personas. Please refresh the page.';
 		}
 	});
 
@@ -273,6 +275,7 @@
 		<div
 				class="rounded-2xl border px-4 py-3 text-sm"
 				style="background:rgba(0, 249, 207, 0.08); border-color:rgba(0, 249, 207, 0.22); color:#d9fffb;"
+				role="alert"
 		>
 			{successMessage}
 		</div>
@@ -308,7 +311,7 @@
 		<div class="flex flex-col gap-3">
 			<p class="text-xs text-white/30 font-medium">Top fields</p>
 			<div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-				{#each fields as [field, count]}
+				{#each fields as [field, count] (field)}
 					<div class="surface p-3 flex flex-col gap-1">
 						<span class="text-xl font-bold text-white">{count}</span>
 						<span class="text-xs text-white/40 truncate">{field}</span>
@@ -342,7 +345,7 @@
 		<div class="flex items-center justify-between">
 			<p class="text-sm font-medium text-white/60">Preview a persona</p>
 			<select bind:value={idx} class="field" style="width:auto; max-width:280px;">
-				{#each $personas as persona, i}
+				{#each $personas as persona, i (persona.email)}
 					<option value={i}>{persona.name} — {persona.company}</option>
 				{/each}
 			</select>
@@ -355,6 +358,7 @@
 </div>
 
 {#if showAddPersonaModal}
+	<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
 	<div
 			class="fixed inset-0 z-50 flex items-center justify-center px-4 py-8"
 			style="background:rgba(2,8,20,0.52); backdrop-filter:blur(10px);"
@@ -362,6 +366,9 @@
 	>
 		<div
 				class="w-full max-w-2xl rounded-[28px] border p-6 md:p-7"
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby="add-persona-title"
 				style="background:linear-gradient(180deg, rgba(8,8,12,0.82), rgba(5,12,25,0.78)); border-color:rgba(255,255,255,0.10); backdrop-filter:blur(20px); box-shadow:0 24px 80px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06);"
 		>
 			<div class="flex items-start justify-between gap-4 mb-6">
@@ -370,7 +377,7 @@
 						 style="border-color:rgba(140,69,255,0.5); color:#00f9cf; background:rgba(140,69,255,0.08);">
 						Add Custom Persona
 					</div>
-					<h2 class="text-3xl font-black tracking-tight text-white">Create a new persona</h2>
+					<h2 id="add-persona-title" class="text-3xl font-black tracking-tight text-white">Create a new persona</h2>
 					<p class="text-sm leading-relaxed text-white/45 max-w-xl">
 						Add a custom contact to the persona list. This will be appended to the CSV and shown immediately
 						in the app.
@@ -391,6 +398,7 @@
 				<div
 						class="mb-4 rounded-2xl border px-4 py-3 text-sm"
 						style="background:rgba(255,107,107,0.08); border-color:rgba(255,107,107,0.22); color:#ffdede;"
+						role="alert"
 				>
 					{errorMessage}
 				</div>
@@ -466,6 +474,7 @@
 							type="checkbox"
 							class="mt-1"
 							bind:checked={form.isSelfSupervisor}
+							on:change={handleSelfSupervisorChange}
 					/>
 					<div class="flex flex-col gap-2">
 						<label for="self-supervisor" class="text-sm font-medium text-white/80">
@@ -488,7 +497,7 @@
 							disabled={form.isSelfSupervisor}
 					>
 						<option value="">Select supervisor</option>
-						{#each supervisorOptions as supervisor}
+						{#each supervisorOptions as supervisor (supervisor.email)}
 							<option value={supervisor.email}>
 								{supervisor.name} — {supervisor.company}
 							</option>

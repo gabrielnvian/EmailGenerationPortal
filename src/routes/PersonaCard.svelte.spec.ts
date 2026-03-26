@@ -4,9 +4,9 @@ import { render } from 'vitest-browser-svelte';
 import PersonaCard from './PersonaCard.svelte';
 import { Persona } from '../personas.model';
 
-const alice = new Persona('Alice Smith', 'Software Engineer', 'Acme Corp', 'Technology', '555-0001', 'alice@acme.com');
-const boss = new Persona('Bob Jones', 'CTO', 'Acme Corp', 'Technology', '555-0002', 'bob@acme.com');
-const aliceWithBoss = new Persona('Alice Smith', 'Software Engineer', 'Acme Corp', 'Technology', '555-0001', 'alice@acme.com', boss);
+const alice = new Persona(1, 'Alice Smith', 'Software Engineer', 'Acme Corp', 'Technology', '555-0001', 'alice@acme.com');
+const boss = new Persona(2, 'Bob Jones', 'CTO', 'Acme Corp', 'Technology', '555-0002', 'bob@acme.com');
+const aliceWithBoss = new Persona(1, 'Alice Smith', 'Software Engineer', 'Acme Corp', 'Technology', '555-0001', 'alice@acme.com', boss);
 
 describe('PersonaCard', () => {
 	it('renders name and job title', async () => {

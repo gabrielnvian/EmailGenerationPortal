@@ -38,16 +38,19 @@ function wouldCreateCycle(persona: Persona, potentialSupervisor: Persona): boole
 export function CsvToPersonas(csv: string): Persona[] {
 	const lines = csv.split(/\r?\n/);
 	const personas: Persona[] = [];
+	let dataIdx = 0;
 
 	// First pass: create all personas without supervisors
 	for (let i = 1; i < lines.length; i++) {
 		if (!lines[i].trim()) continue;
 		const fields = parseCSVLine(lines[i]);
-		personas.push(new Persona(fields[0], fields[1], fields[2], fields[3], fields[4], fields[5], null));
+		// Use dataIdx as a temporary id for CSV parsing (not persisted)
+		personas.push(new Persona(dataIdx, fields[0], fields[1], fields[2], fields[3], fields[4], fields[5], null));
+		dataIdx++;
 	}
 
 	// Second pass: assign supervisors (handles forward references)
-	let dataIdx = 0;
+	dataIdx = 0;
 	for (let i = 1; i < lines.length; i++) {
 		if (!lines[i].trim()) continue;
 		const fields = parseCSVLine(lines[i]);

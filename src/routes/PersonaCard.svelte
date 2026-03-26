@@ -4,8 +4,10 @@
 	export let persona: Persona;
 	export let noSup: boolean = false;
 	export let isSup: boolean = false;
+	export let depth: number = 0;
 
-	$: showSup = persona.supervisor && !noSup;
+	const MAX_DEPTH = 5;
+	$: showSup = persona.supervisor && !noSup && depth < MAX_DEPTH;
 
 	const PALETTE = [
 		{ bg: '#00f9cf18', text: '#00f9cf' },
@@ -60,7 +62,7 @@
 		{#if showSup}
 			<div class="border-t border-[#1e1e2a] pt-3">
 				<p class="text-xs text-white/25 mb-2">Reports to</p>
-				<svelte:self isSup persona={persona.supervisor}/>
+				<svelte:self isSup persona={persona.supervisor} depth={depth + 1}/>
 			</div>
 		{/if}
 	</div>

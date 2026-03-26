@@ -10,19 +10,19 @@
 
 	function addPersona() {
 		const personaToBeAdded = personas[personaIdx];
-		if ($selectedPersonas.map(p => p.name).includes(personaToBeAdded.name)) return;
+		if ($selectedPersonas.some(p => p.id === personaToBeAdded.id)) return;
 		$selectedPersonas = [...$selectedPersonas, personaToBeAdded];
 	}
 
-	function removePersona(name: string) {
-		$selectedPersonas = $selectedPersonas.filter(p => p.name !== name);
+	function removePersona(id: number) {
+		$selectedPersonas = $selectedPersonas.filter(p => p.id !== id);
 	}
 </script>
 
 <div class="flex flex-col gap-3">
 	<div class="flex gap-2 items-center">
 		<select class="field flex-1" bind:value={personaIdx}>
-			{#each personas as persona, idx}
+			{#each personas as persona, idx (persona.id)}
 				<option value={idx}>{persona.name} — {persona.company}</option>
 			{/each}
 		</select>
@@ -35,12 +35,12 @@
 
 	{#if $selectedPersonas.length > 0}
 		<div class="flex flex-col gap-2">
-			{#each $selectedPersonas as persona}
+			{#each $selectedPersonas as persona (persona.id)}
 				<div class="relative group">
 					<PersonaCard noSup {persona}/>
 					<button
 						class="absolute top-3 right-3 w-6 h-6 rounded-full flex items-center justify-center text-white/30 hover:text-white hover:bg-white/10 transition-all opacity-0 group-hover:opacity-100 text-xs"
-						on:click={() => removePersona(persona.name)}
+						on:click={() => removePersona(persona.id)}
 						aria-label="Remove {persona.name}">
 						✕
 					</button>

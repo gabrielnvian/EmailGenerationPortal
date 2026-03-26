@@ -1,4 +1,5 @@
 import {Persona} from "../../personas.model";
+import {PUBLIC_N8N_WEBHOOK_V1, PUBLIC_N8N_WEBHOOK_V2, PUBLIC_N8N_COLD_START_URL} from '$env/static/public';
 
 export type ActionResult = { success: true } | { success: false; error: string };
 
@@ -12,9 +13,7 @@ export async function queueEmails(
 	length: number,
 	version: number
 ): Promise<ActionResult> {
-	const url = version === 1
-		? "https://n8n.tail068f9.ts.net/webhook/generate-email"
-		: "https://n8n.tail068f9.ts.net/webhook/3726feba-2e41-424a-a5d9-04713248c600";
+	const url = version === 1 ? PUBLIC_N8N_WEBHOOK_V1 : PUBLIC_N8N_WEBHOOK_V2;
 
 	try {
 		const response = await fetch(url, {
@@ -43,7 +42,7 @@ export async function queueEmails(
 
 export async function coldStart(): Promise<ActionResult> {
 	try {
-		const response = await fetch('https://n8n.tail068f9.ts.net/webhook/ollama-cold-start', {
+		const response = await fetch(PUBLIC_N8N_COLD_START_URL, {
 			method: "POST",
 			headers: {"Content-Type": "application/json"},
 			body: "{}"

@@ -1,9 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+vi.mock('$env/static/public', () => ({
+	PUBLIC_N8N_WEBHOOK_V1: 'https://n8n.tail068f9.ts.net/webhook/generate-email',
+	PUBLIC_N8N_WEBHOOK_V2: 'https://n8n.tail068f9.ts.net/webhook/3726feba-2e41-424a-a5d9-04713248c600',
+	PUBLIC_N8N_COLD_START_URL: 'https://n8n.tail068f9.ts.net/webhook/ollama-cold-start'
+}));
+
 import { queueEmails, coldStart } from './generate';
 import { Persona } from '../../personas.model';
 
-const alice = new Persona('Alice', 'Engineer', 'Acme', 'Tech', '555-0001', 'alice@acme.com');
-const bob = new Persona('Bob', 'Manager', 'Acme', 'Tech', '555-0002', 'bob@acme.com');
+const alice = new Persona(1, 'Alice', 'Engineer', 'Acme', 'Tech', '555-0001', 'alice@acme.com');
+const bob = new Persona(2, 'Bob', 'Manager', 'Acme', 'Tech', '555-0002', 'bob@acme.com');
 
 beforeEach(() => {
 	vi.restoreAllMocks();

@@ -2,121 +2,193 @@
 	import {goto} from "$app/navigation";
 	import {base} from '$app/paths';
 	import {personas} from "../../personas";
-	import {coldStart, queueEmails, type ActionResult} from "./generate";
+	import {generateEmails, personaToGeneratePersona, type GenerateData, type GenerateResult} from "./generate";
 	import type {Persona} from "../../personas.model";
-	import PersonaSelector from "../../PersonaSelector.svelte";
-	import {writable, type Writable} from "svelte/store";
+	import TimelineView from "../TimelineView.svelte";
 
-	let fromField: string = "";
-	let toField: string = "";
-	let idea: string = "";
-	let n: number = 10;
-	let length: number = 100;
+	// --- Persona selection + per-persona extras ---
+	let selectedPersonas: Persona[] = [];
+	let tones: Record<number, string> = {};
+	let personalDetails: Record<number, string> = {};
+	let personaIdx: number = 0;
 
-	let fromPersonas: Writable<Persona[]> = writable([]);
-	let toPersonas: Writable<Persona[]> = writable([]);
+	function addPersona() {
+		const p = $personas[personaIdx];
+		if (!p || selectedPersonas.length >= 2 || selectedPersonas.some(s => s.id === p.id)) return;
+		selectedPersonas = [...selectedPersonas, p];
+	}
 
-	$: filteredFromPersonas = $personas.filter(p => p.field === fromField);
-	$: filteredToPersonas = $personas.filter(p => p.field === toField);
-	$: fields = Array.from(new Set($personas.map(p => p.field))).sort();
-	$: canQueue = $fromPersonas.length > 0 && $toPersonas.length > 0 && idea.trim().length > 0 && Number.isFinite(n) && n >= 1 && Number.isFinite(length) && length >= 1;
+	function removePersona(id: number) {
+		selectedPersonas = selectedPersonas.filter(p => p.id !== id);
+		delete tones[id];
+		delete personalDetails[id];
+		tones = tones;
+		personalDetails = personalDetails;
+	}
 
-	type Status = { type: 'idle' } | { type: 'loading'; label: string } | { type: 'success'; label: string } | { type: 'error'; message: string };
+	// --- Generation fields ---
+	let relationship: string = "";
+	let arc: string = "";
+	let threadCount: number = 3;
+	let timespan: string = "3 months";
+
+	$: canGenerate = selectedPersonas.length === 2 && relationship.trim().length > 0 && Number.isFinite(threadCount) && threadCount >= 1 && threadCount <= 20;
+
+	// --- Status ---
+	type Status = { type: 'idle' } | { type: 'loading' } | { type: 'success'; data: GenerateData; id?: number } | { type: 'error'; message: string };
 	let status: Status = { type: 'idle' };
 
-	async function handleColdStart() {
-		status = { type: 'loading', label: 'Starting...' };
-		const result: ActionResult = await coldStart();
-		status = result.success ? { type: 'success', label: 'Cold start complete' } : { type: 'error', message: result.error };
+	async function handleGenerate() {
+		status = { type: 'loading' };
+
+		const personaObjects = selectedPersonas.map(p => {
+			const details = personalDetails[p.id]?.trim();
+			return personaToGeneratePersona(
+				p,
+				tones[p.id]?.trim() || undefined,
+				details ? details.split(',').map(d => d.trim()).filter(Boolean) : undefined
+			);
+		});
+
+		const result: GenerateResult = await generateEmails({
+			personas: personaObjects,
+			relationship,
+			arc: arc.trim() || undefined,
+			threadCount,
+			timespan: timespan.trim() || undefined,
+		});
+
+		if (result.success) {
+			const d = result.data;
+			// Fill in defaults for missing summary fields
+			const timeline = d?.timeline ?? [];
+			const totalMessages = timeline.reduce((n, t) => n + (t.messages?.length ?? 0), 0);
+			const summary = {
+				totalMessages: d?.summary?.totalMessages ?? totalMessages,
+				timespanDays: d?.summary?.timespanDays ?? 0,
+				sentimentProgression: d?.summary?.sentimentProgression ?? [],
+				arcDescription: d?.summary?.arcDescription ?? '',
+			};
+			status = { type: 'success', data: { timeline, summary }, id: result.id };
+		} else {
+			status = { type: 'error', message: result.error };
+		}
 	}
 
-	async function handleQueue(version: number) {
-		status = { type: 'loading', label: 'Queuing emails...' };
-		const result: ActionResult = await queueEmails(fromField, toField, idea, $fromPersonas, $toPersonas, n, length, version);
-		status = result.success ? { type: 'success', label: 'Emails queued successfully' } : { type: 'error', message: result.error };
-	}
 </script>
 
 <div class="flex flex-col gap-8">
 	<!-- Header -->
 	<div class="flex flex-col gap-2 pt-4">
-		<button class="flex items-center gap-1.5 text-xs text-white/30 hover:text-white/60 transition-colors w-fit mb-2" on:click={() => goto(`${base}/`)}>
+		<button class="flex items-center gap-1.5 text-xs text-white/40 hover:text-white/70 transition-colors w-fit" on:click={() => goto(`${base}/`)}>
 			← Back
 		</button>
-		<h1 class="text-4xl font-black tracking-tight">
-			Generate emails
-		</h1>
-		<p class="text-white/35 text-sm">Configure your campaign and queue it for generation.</p>
-		<div class="divider-glow mt-1"></div>
+		<h1 class="text-4xl font-black tracking-tight">Generate emails</h1>
+		<p class="text-white/60 text-sm">Build a relationship timeline between two personas.</p>
+		<div class="divider-glow"></div>
 	</div>
 
-	<!-- FROM / TO -->
-	<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-		<!-- FROM -->
-		<div class="surface p-5 flex flex-col gap-4">
-			<div class="flex items-center gap-2">
-				<div class="w-1.5 h-1.5 rounded-full" style="background:#00f9cf;"></div>
-				<span class="text-xs font-semibold text-white/60">From</span>
-			</div>
-			<div class="flex flex-col gap-1.5">
-				<label class="text-xs text-white/30" for="from-field">Field</label>
-				<select id="from-field" class="field" bind:value={fromField} on:change={() => $fromPersonas = []}>
-					<option value="" disabled>Select a field...</option>
-					{#each fields as field (field)}
-						<option value={field}>{field}</option>
-					{/each}
-				</select>
-			</div>
-			{#if fromField}
-				<PersonaSelector personas={filteredFromPersonas} selectedPersonas={fromPersonas}/>
-			{:else}
-				<p class="text-xs text-white/20 italic">Select a field to browse personas</p>
-			{/if}
+	<!-- Personas -->
+	<div class="surface p-5 flex flex-col gap-4">
+		<div class="section-label section-label--cyan">
+			Personas
+			<span class="ml-auto normal-case tracking-normal font-normal text-white/40">exactly 2</span>
 		</div>
 
-		<!-- TO -->
-		<div class="surface p-5 flex flex-col gap-4">
-			<div class="flex items-center gap-2">
-				<div class="w-1.5 h-1.5 rounded-full" style="background:#8c45ff;"></div>
-				<span class="text-xs font-semibold text-white/60">To</span>
-			</div>
-			<div class="flex flex-col gap-1.5">
-				<label class="text-xs text-white/30" for="to-field">Field</label>
-				<select id="to-field" class="field" bind:value={toField} on:change={() => $toPersonas = []}>
-					<option value="" disabled>Select a field...</option>
-					{#each fields as field (field)}
-						<option value={field}>{field}</option>
+		<!-- Picker -->
+		{#if selectedPersonas.length < 2}
+			<div class="flex gap-2 items-center">
+				<select class="field flex-1" bind:value={personaIdx}>
+					{#each $personas as persona, idx (persona.id)}
+						<option value={idx}>{persona.name} — {persona.company}</option>
 					{/each}
 				</select>
+				<button class="btn btn-primary btn-sm rounded-xl flex-shrink-0" on:click={addPersona}>Add</button>
 			</div>
-			{#if toField}
-				<PersonaSelector personas={filteredToPersonas} selectedPersonas={toPersonas}/>
-			{:else}
-				<p class="text-xs text-white/20 italic">Select a field to browse personas</p>
-			{/if}
-		</div>
+		{/if}
+
+		<!-- Selected personas -->
+		{#if selectedPersonas.length > 0}
+			<div class="flex flex-col gap-3">
+				{#each selectedPersonas as persona, pi (persona.id)}
+					<div class="surface-inset p-4 flex flex-col gap-3">
+						<div class="flex items-center justify-between">
+							<div class="flex items-center gap-2 min-w-0">
+								<span class="badge-cyan text-[10px] font-bold">{pi === 0 ? 'INBOX OWNER' : 'CONTACT'}</span>
+								<span class="text-sm font-semibold text-white truncate">{persona.name}</span>
+								<span class="text-xs text-white/50 truncate hidden sm:inline">{persona.jobTitle} @ {persona.company}</span>
+							</div>
+							<button
+								class="w-6 h-6 rounded-full flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all text-xs flex-shrink-0"
+								on:click={() => removePersona(persona.id)}
+								aria-label="Remove {persona.name}">
+								✕
+							</button>
+						</div>
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+							<div class="flex flex-col gap-1.5">
+								<label class="text-xs text-white/60" for="tone-{persona.id}">
+									Tone <span class="text-white/30">optional</span>
+								</label>
+								<input
+									id="tone-{persona.id}"
+									class="field text-sm"
+									placeholder="e.g. casual, direct"
+									bind:value={tones[persona.id]}
+								/>
+							</div>
+							<div class="flex flex-col gap-1.5">
+								<label class="text-xs text-white/60" for="details-{persona.id}">
+									Personal details <span class="text-white/30">optional</span>
+								</label>
+								<input
+									id="details-{persona.id}"
+									class="field text-sm"
+									placeholder="comma-separated, e.g. birthday Oct 12, has a dog"
+									bind:value={personalDetails[persona.id]}
+								/>
+							</div>
+						</div>
+					</div>
+				{/each}
+			</div>
+		{/if}
 	</div>
 
-	<!-- Config + Actions -->
-	<div class="surface p-5 flex flex-col gap-6">
+	<!-- Relationship + Config -->
+	<div class="surface p-5 flex flex-col gap-5">
 		<div class="flex flex-col gap-1.5">
-			<label class="text-xs text-white/30" for="idea-input">Idea / prompt</label>
+			<label class="text-xs text-white/70 font-medium" for="relationship-input">Relationship</label>
 			<textarea
-				id="idea-input"
-				class="field h-24 resize-none"
-				placeholder="Describe the email idea..."
-				bind:value={idea}
+				id="relationship-input"
+				class="field h-20 resize-none"
+				placeholder="Describe how these people relate, e.g. 'new client, first HVAC project together'"
+				bind:value={relationship}
+			></textarea>
+		</div>
+
+		<div class="flex flex-col gap-1.5">
+			<label class="text-xs text-white/70 font-medium" for="arc-input">
+				Narrative arc <span class="text-white/30 font-normal">optional</span>
+			</label>
+			<textarea
+				id="arc-input"
+				class="field h-16 resize-none"
+				placeholder="e.g. 'starts professional, builds rapport, hits a billing snag, resolves amicably'"
+				bind:value={arc}
 			></textarea>
 		</div>
 
 		<div class="grid grid-cols-2 gap-4">
 			<div class="flex flex-col gap-1.5">
-				<label class="text-xs text-white/30" for="n-input">Number of emails</label>
-				<input id="n-input" class="field" bind:value={n} type="number" min="1" max="1000"/>
+				<label class="text-xs text-white/70 font-medium" for="thread-count-input">Thread count</label>
+				<input id="thread-count-input" class="field" bind:value={threadCount} type="number" min="1" max="20"/>
 			</div>
 			<div class="flex flex-col gap-1.5">
-				<label class="text-xs text-white/30" for="length-input">Characters per email</label>
-				<input id="length-input" class="field" bind:value={length} type="number" min="1" max="10000"/>
+				<label class="text-xs text-white/70 font-medium" for="timespan-input">
+					Timespan <span class="text-white/30 font-normal">optional</span>
+				</label>
+				<input id="timespan-input" class="field" bind:value={timespan} type="text" placeholder="e.g. 2 months"/>
 			</div>
 		</div>
 
@@ -124,43 +196,39 @@
 
 		<!-- Status -->
 		{#if status.type === 'loading'}
-			<div class="flex items-center gap-2 text-sm text-white/40">
-				<span class="loading loading-spinner loading-xs"></span>
-				{status.label}
+			<div class="flex items-center gap-2.5 text-sm text-white/60">
+				<span class="loading loading-spinner loading-sm" style="color:#00f9cf;"></span>
+				Generating timeline...
 			</div>
 		{:else if status.type === 'success'}
-			<div class="text-sm rounded-xl px-4 py-2.5 font-medium" style="background:#00f9cf12; color:#00f9cf; border:1px solid #00f9cf22;">
-				✓ {status.label}
+			<div class="alert-success">
+				Generated {status.data.summary.totalMessages} message{status.data.summary.totalMessages === 1 ? '' : 's'} across {status.data.timeline.length} thread{status.data.timeline.length === 1 ? '' : 's'}
 			</div>
 		{:else if status.type === 'error'}
-			<div class="text-sm rounded-xl px-4 py-2.5" style="background:#ff4a4a12; color:#ff8080; border:1px solid #ff4a4a22;">
-				✕ {status.message}
-			</div>
+			<div class="alert-error">{status.message}</div>
 		{/if}
 
 		<div class="flex flex-wrap items-center gap-3">
 			<button
 				class="btn btn-primary btn-sm rounded-xl"
-				disabled={!canQueue || status.type === 'loading'}
-				on:click={() => handleQueue(1)}>
-				Queue — Old Workflow
+				disabled={!canGenerate || status.type === 'loading'}
+				on:click={handleGenerate}>
+				Generate
 			</button>
-			<button
-				class="btn btn-secondary btn-sm rounded-xl"
-				disabled={!canQueue || status.type === 'loading'}
-				on:click={() => handleQueue(2)}>
-				Queue — 2-Agent Workflow
-			</button>
-			<button
-				class="btn btn-ghost btn-sm rounded-xl text-white/30 hover:text-white/60 ml-auto"
-				disabled={status.type === 'loading'}
-				on:click={handleColdStart}>
-				Cold Start
-			</button>
+			{#if !canGenerate}
+				<p class="text-xs text-white/40">Select 2 personas and describe their relationship.</p>
+			{/if}
 		</div>
-
-		{#if !canQueue}
-			<p class="text-xs text-white/20">Add at least one From persona, one To persona, and an idea to queue.</p>
-		{/if}
 	</div>
+
+	<!-- Results -->
+	{#if status.type === 'success'}
+		{#if status.id}
+			<div class="flex items-center gap-3">
+				<span class="text-xs text-white/40">Generation #{status.id}</span>
+				<a href="{base}/generations/{status.id}/" class="text-xs font-medium" style="color:#00f9cf;">View full page →</a>
+			</div>
+		{/if}
+		<TimelineView data={status.data}/>
+	{/if}
 </div>

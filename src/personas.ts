@@ -1,5 +1,6 @@
 import { writable } from 'svelte/store';
 import type { Readable } from 'svelte/store';
+import { base } from '$app/paths';
 import { Persona } from './personas.model';
 
 type PersonaRow = {
@@ -45,7 +46,7 @@ function createPersonasStore(): PersonasStore {
 	return {
 		subscribe,
 		async reload() {
-			const res = await fetch('./api/personas');
+			const res = await fetch(`${base}/api/personas`);
 
 			if (!res.ok) {
 				throw new Error('Failed to reload personas');

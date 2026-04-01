@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
+	import { base } from '$app/paths';
 	import { personas } from '../personas';
 	import type { Persona } from '../personas.model';
 	import {
@@ -122,7 +123,7 @@
 
 		try {
 			const isEdit = mode === 'edit' && editingId != null;
-			const res = await fetch('./api/personas', {
+			const res = await fetch(`${base}/api/personas`, {
 				method: isEdit ? 'PUT' : 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(isEdit ? { ...payload, id: editingId } : payload)
@@ -156,15 +157,15 @@
 	<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
 	<div
 		class="fixed inset-0 z-50 flex items-center justify-center px-4 py-8"
-		style="background:rgba(2,8,20,0.52); backdrop-filter:blur(10px);"
+		style="background:rgba(4,6,16,0.65); backdrop-filter:blur(20px);"
 		on:click|self={close}
 	>
 		<div
-			class="w-full max-w-2xl rounded-[28px] border p-6 md:p-7 overflow-y-auto max-h-[90vh]"
+			class="w-full max-w-2xl rounded-[24px] border p-6 md:p-7 overflow-y-auto max-h-[90vh]"
 			role="dialog"
 			aria-modal="true"
 			aria-labelledby="persona-form-title"
-			style="background:linear-gradient(180deg, rgba(8,8,12,0.82), rgba(5,12,25,0.78)); border-color:rgba(255,255,255,0.10); backdrop-filter:blur(20px); box-shadow:0 24px 80px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06);"
+			style="background:linear-gradient(180deg, #171824, #12131e); border-color:rgba(255,255,255,0.10); backdrop-filter:blur(24px); box-shadow:0 32px 80px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.05);"
 		>
 			<div class="flex items-start justify-between gap-4 mb-6">
 				<div class="flex flex-col gap-2">
@@ -175,7 +176,7 @@
 					<h2 id="persona-form-title" class="text-3xl font-black tracking-tight text-white">
 						{mode === 'edit' ? 'Edit persona' : 'Create a new persona'}
 					</h2>
-					<p class="text-sm leading-relaxed text-white/45 max-w-xl">
+					<p class="text-sm leading-relaxed text-white/60 max-w-xl">
 						{mode === 'edit'
 							? 'Update this persona\'s details. Changes will be saved to the database immediately.'
 							: 'Add a custom contact to the persona list. This will be saved to the database and shown immediately in the app.'}
@@ -193,51 +194,40 @@
 			</div>
 
 			{#if errorMessage}
-				<div
-					class="mb-4 rounded-2xl border px-4 py-3 text-sm"
-					style="background:rgba(255,107,107,0.08); border-color:rgba(255,107,107,0.22); color:#ffdede;"
-					role="alert"
-				>
-					{errorMessage}
-				</div>
+				<div class="alert-error mb-4" role="alert">{errorMessage}</div>
 			{/if}
 
 			{#if duplicateNameWarning}
-				<div
-					class="mb-4 rounded-2xl border px-4 py-3 text-sm"
-					style="background:rgba(255,193,7,0.08); border-color:rgba(255,193,7,0.22); color:#fff2c7;"
-				>
-					{duplicateNameWarning}
-				</div>
+				<div class="alert-warning mb-4">{duplicateNameWarning}</div>
 			{/if}
 
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 				<div class="flex flex-col gap-2">
-					<label class="text-sm text-white/65 font-medium" for="persona-name">Full Name</label>
+					<label class="text-sm text-white/80 font-medium" for="persona-name">Full Name</label>
 					<input id="persona-name" class="field" bind:value={form.name} placeholder="Name"
 						   maxlength={MAX_NAME_LENGTH} required/>
 				</div>
 
 				<div class="flex flex-col gap-2">
-					<label class="text-sm text-white/65 font-medium" for="persona-job-title">Job Title</label>
+					<label class="text-sm text-white/80 font-medium" for="persona-job-title">Job Title</label>
 					<input id="persona-job-title" class="field" bind:value={form.jobTitle} placeholder="Job Title"
 						   maxlength={MAX_JOB_TITLE_LENGTH} required/>
 				</div>
 
 				<div class="flex flex-col gap-2">
-					<label class="text-sm text-white/65 font-medium" for="persona-company">Company</label>
+					<label class="text-sm text-white/80 font-medium" for="persona-company">Company</label>
 					<input id="persona-company" class="field" bind:value={form.company} placeholder="Company"
 						   maxlength={MAX_COMPANY_LENGTH} required/>
 				</div>
 
 				<div class="flex flex-col gap-2">
-					<label class="text-sm text-white/65 font-medium" for="persona-field">Field</label>
+					<label class="text-sm text-white/80 font-medium" for="persona-field">Field</label>
 					<input id="persona-field" class="field" bind:value={form.field} placeholder="Field"
 						   maxlength={MAX_FIELD_LENGTH} required/>
 				</div>
 
 				<div class="flex flex-col gap-2">
-					<label class="text-sm text-white/65 font-medium" for="persona-phone">Phone (optional)</label>
+					<label class="text-sm text-white/80 font-medium" for="persona-phone">Phone (optional)</label>
 					<input
 						id="persona-phone"
 						class="field"
@@ -250,7 +240,7 @@
 				</div>
 
 				<div class="flex flex-col gap-2">
-					<label class="text-sm text-white/65 font-medium" for="persona-email">Email Address</label>
+					<label class="text-sm text-white/80 font-medium" for="persona-email">Email Address</label>
 					<input
 						id="persona-email"
 						class="field"
@@ -265,7 +255,7 @@
 			</div>
 
 			<div class="mt-5 rounded-2xl border p-4"
-				 style="background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08);">
+				 style="background:rgba(255,255,255,0.04); border-color:rgba(255,255,255,0.10);">
 				<div class="flex items-start gap-3">
 					<input
 						id="self-supervisor"
@@ -278,7 +268,7 @@
 						<label for="self-supervisor" class="text-sm font-medium text-white/80">
 							This persona is self-supervised
 						</label>
-						<p class="text-xs leading-relaxed text-white/45">
+						<p class="text-xs leading-relaxed text-white/55">
 							If this person supervises themself, their own ID will be saved as supervisor reference.
 							Otherwise, select a supervisor below.
 						</p>
@@ -286,7 +276,7 @@
 				</div>
 
 				<div class="mt-4 flex flex-col gap-2">
-					<label class="text-sm text-white/65 font-medium" for="persona-supervisor">Supervisor</label>
+					<label class="text-sm text-white/80 font-medium" for="persona-supervisor">Supervisor</label>
 					<select
 						id="persona-supervisor"
 						class="field"
@@ -306,18 +296,13 @@
 			</div>
 
 			<div class="mt-6 flex items-center justify-end gap-3">
-				<button
-					class="px-4 py-2 rounded-2xl text-sm font-semibold border text-white/80 hover:text-white transition"
-					style="border-color:rgba(255,255,255,0.10); background:rgba(255,255,255,0.03);"
-					on:click={close}
-					disabled={isSaving}
-				>
+				<button class="btn-glass" on:click={close} disabled={isSaving}>
 					Cancel
 				</button>
 
 				<button
-					class="px-4 py-2 rounded-2xl text-sm font-semibold transition-all disabled:opacity-60"
-					style="background:linear-gradient(100deg, #00f9cf, #29b0ff 50%, #8c45ff); color:#02111f; box-shadow:0 10px 30px rgba(41,176,255,0.25);"
+					class="px-4 py-2 rounded-xl text-sm font-semibold transition-all disabled:opacity-60"
+					style="background:linear-gradient(100deg, #00f9cf, #29b0ff 50%, #8c45ff); color:#02111f; box-shadow:0 8px 24px rgba(41,176,255,0.20);"
 					on:click={save}
 					disabled={isSaving}
 				>

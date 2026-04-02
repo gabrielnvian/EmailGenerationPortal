@@ -1,5 +1,9 @@
 <script lang="ts">
-	import {decodeEmailBody, formatResponseTime, extractMessageInfo, isSentByOwner, isUnread, type GenerateData, type OutputFormat, type TimelineMessage} from "./generate/generate";
+	import {formatResponseTime, extractMessageInfo, isSentByOwner, isUnread, type GenerateData, type OutputFormat, type TimelineMessage, type GCalEvent} from "./generate/generate";
+
+	function asGcal(output: Record<string, unknown>): GCalEvent {
+		return output as GCalEvent;
+	}
 
 	export let data: GenerateData;
 
@@ -201,7 +205,7 @@
 								{#if info.date}<div><span class="text-white/40">Date:</span> <span class="text-white/70">{info.date}</span></div>{/if}
 							{:else}
 								<!-- Calendar event -->
-								{@const evt = msg.output}
+								{@const evt = asGcal(msg.output)}
 								{#if info.date}<div><span class="text-white/40">Start:</span> <span class="text-white/70">{info.date}</span></div>{/if}
 								{#if evt.end?.dateTime}<div><span class="text-white/40">End:</span> <span class="text-white/70">{evt.end.dateTime}</span></div>{/if}
 								{#if evt.location}<div><span class="text-white/40">Location:</span> <span class="text-white/70">{evt.location}</span></div>{/if}

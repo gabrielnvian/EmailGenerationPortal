@@ -18,6 +18,17 @@ export type MessageMetadata = {
 	relationshipStage: string;
 	topics: string[];
 	personalDetailsMentioned: string[];
+	sentimentClass?: string;
+	emailCategory?: string;
+	businessValue?: number;
+	responseTimeMinutes?: number | null;
+};
+
+export type RelationshipScoring = {
+	communicationFrequency: number;
+	sentimentTrend: string;
+	engagementLevel: string;
+	daysSinceLastContact: number;
 };
 
 export type GmailHeader = {
@@ -50,6 +61,7 @@ export type Thread = {
 	threadId: string;
 	subject: string;
 	messages: ThreadMessage[];
+	relationshipScoring?: RelationshipScoring;
 };
 
 export type GenerateSummary = {
@@ -102,6 +114,19 @@ export function decodeEmailBody(data: string): string {
 	} catch {
 		return data;
 	}
+}
+
+/** Format minutes into a human-readable duration like "4h 2m" or "3d 12h". */
+export function formatResponseTime(minutes: number): string {
+	if (minutes < 60) return `${minutes}m`;
+	if (minutes < 1440) {
+		const h = Math.floor(minutes / 60);
+		const m = minutes % 60;
+		return m > 0 ? `${h}h ${m}m` : `${h}h`;
+	}
+	const d = Math.floor(minutes / 1440);
+	const h = Math.floor((minutes % 1440) / 60);
+	return h > 0 ? `${d}d ${h}h` : `${d}d`;
 }
 
 /** Extract a header value from a Gmail message. */

@@ -4,7 +4,7 @@ vi.mock('$env/static/public', () => ({
 	PUBLIC_GENERATE_URL: 'https://n8n.tail068f9.ts.net:4443/generate'
 }));
 
-import { generateEmails, personaToGeneratePersona, decodeEmailBody, getHeader, type GenerateRequest, type GmailMessage } from './generate';
+import { generateEmails, personaToGeneratePersona, decodeEmailBody, getHeader, formatResponseTime, type GenerateRequest, type GmailMessage } from './generate';
 import { Persona } from '../../personas.model';
 
 const collin = new Persona(1, 'Collin Weirs', 'Sculptor', 'Statues Inc.', 'Decoration', '9257674434', 'collin@statuesinc.com');
@@ -102,6 +102,28 @@ describe('personaToGeneratePersona', () => {
 		expect(result).not.toHaveProperty('supervisor');
 		expect(result).not.toHaveProperty('supervisorId');
 		expect(result).not.toHaveProperty('id');
+	});
+});
+
+describe('formatResponseTime', () => {
+	it('formats minutes under an hour', () => {
+		expect(formatResponseTime(42)).toBe('42m');
+	});
+
+	it('formats hours and minutes', () => {
+		expect(formatResponseTime(242)).toBe('4h 2m');
+	});
+
+	it('formats exact hours', () => {
+		expect(formatResponseTime(180)).toBe('3h');
+	});
+
+	it('formats days and hours', () => {
+		expect(formatResponseTime(2160)).toBe('1d 12h');
+	});
+
+	it('formats exact days', () => {
+		expect(formatResponseTime(2880)).toBe('2d');
 	});
 });
 

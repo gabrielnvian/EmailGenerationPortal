@@ -30,9 +30,11 @@
 	let relationship: string = "";
 	let arc: string = "";
 	let threadCount: number = 3;
-	let timespan: string = "3 months";
+	let timespanValue: number = 3;
+	let timespanUnit: string = "months";
 
-	$: canGenerate = selectedPersonas.length === 2 && relationship.trim().length > 0 && Number.isFinite(threadCount) && threadCount >= 1 && threadCount <= 20;
+	$: timespan = Number.isFinite(timespanValue) && timespanValue >= 1 ? `${timespanValue} ${timespanUnit}` : '';
+	$: canGenerate = selectedPersonas.length === 2 && relationship.trim().length > 0 && Number.isFinite(threadCount) && threadCount >= 1 && threadCount <= 20 && Number.isFinite(timespanValue) && timespanValue >= 1;
 
 	// --- Status ---
 	type Status = { type: 'idle' } | { type: 'loading' } | { type: 'success'; data: GenerateData; id?: number } | { type: 'error'; message: string };
@@ -185,10 +187,16 @@
 				<input id="thread-count-input" class="field" bind:value={threadCount} type="number" min="1" max="20"/>
 			</div>
 			<div class="flex flex-col gap-1.5">
-				<label class="text-xs text-white/70 font-medium" for="timespan-input">
-					Timespan <span class="text-white/30 font-normal">optional</span>
-				</label>
-				<input id="timespan-input" class="field" bind:value={timespan} type="text" placeholder="e.g. 2 months"/>
+				<label class="text-xs text-white/70 font-medium" for="timespan-value">Timespan</label>
+				<div class="flex gap-2">
+					<input id="timespan-value" class="field" style="width:5rem; flex:none;" bind:value={timespanValue} type="number" min="1"/>
+					<select class="field flex-1" bind:value={timespanUnit}>
+						<option value="days">days</option>
+						<option value="weeks">weeks</option>
+						<option value="months">months</option>
+						<option value="years">years</option>
+					</select>
+				</div>
 			</div>
 		</div>
 

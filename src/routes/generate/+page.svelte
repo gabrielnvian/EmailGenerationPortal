@@ -84,8 +84,8 @@
 		<button class="flex items-center gap-1.5 text-xs text-white/40 hover:text-white/70 transition-colors w-fit" on:click={() => goto(`${base}/`)}>
 			← Back
 		</button>
-		<h1 class="text-4xl font-black tracking-tight">Generate emails</h1>
-		<p class="text-white/60 text-sm">Build a relationship timeline between two personas.</p>
+		<h1 class="text-4xl font-black tracking-tight">Generate</h1>
+		<p class="text-white/60 text-sm">Build a relationship timeline between two personas — emails, events, or calendar invites.</p>
 		<div class="divider-glow"></div>
 	</div>
 

@@ -83,7 +83,7 @@
 			← Back
 		</button>
 		<h1 class="text-4xl font-black tracking-tight">Past Generations</h1>
-		<p class="text-white/60 text-sm">Search and browse previously generated email timelines.</p>
+		<p class="text-white/60 text-sm">Search and browse previously generated timelines.</p>
 		<div class="divider-glow"></div>
 	</div>
 

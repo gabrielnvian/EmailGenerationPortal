@@ -50,14 +50,14 @@
 	<div class="flex flex-col gap-3 pt-6">
 		<div class="flex items-center gap-2">
 			<div class="w-2 h-2 rounded-full" style="background:#00f9cf; box-shadow: 0 0 10px #00f9cf88;"></div>
-			<span class="text-[11px] text-white/40 font-semibold tracking-widest uppercase">Email Generation Portal</span>
+			<span class="text-[11px] text-white/40 font-semibold tracking-widest uppercase">Structured Data Generator</span>
 		</div>
 		<h1 class="text-5xl font-black tracking-tight leading-[1.05]">
 			Generate<br/>
-			<span class="text-gradient">targeted emails.</span>
+			<span class="text-gradient">realistic data.</span>
 		</h1>
 		<p class="text-white/50 text-sm max-w-sm leading-relaxed">
-			Build persona-to-persona email campaigns using AI-generated content tuned to each contact's profile.
+			Build relationship timelines between personas — emails, calendar events, and more — powered by AI.
 		</p>
 	</div>
 
@@ -85,8 +85,8 @@
 				✉️
 			</div>
 			<div>
-				<p class="font-semibold text-white text-sm">Generate Emails</p>
-				<p class="text-xs text-white/45 mt-0.5">AI-generated timelines</p>
+				<p class="font-semibold text-white text-sm">Generate</p>
+				<p class="text-xs text-white/45 mt-0.5">Emails, calendar events, and more</p>
 			</div>
 			<span class="text-white/25 text-xs mt-auto">Get started →</span>
 		</button>

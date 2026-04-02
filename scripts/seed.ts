@@ -63,7 +63,35 @@ db.exec(`
 `);
 
 const csv = fs.readFileSync(CSV_PATH, 'utf-8');
-const lines = csv.split(/\r?\n/);
+
+// Split CSV into logical lines (respecting quoted fields that contain newlines)
+function splitCSVLines(text: string): string[] {
+	const lines: string[] = [];
+	let current = '';
+	let inQuotes = false;
+	for (let i = 0; i < text.length; i++) {
+		const char = text[i];
+		if (char === '"') {
+			if (inQuotes && text[i + 1] === '"') {
+				current += '""';
+				i++;
+			} else {
+				inQuotes = !inQuotes;
+			}
+			current += char;
+		} else if ((char === '\n' || char === '\r') && !inQuotes) {
+			if (char === '\r' && text[i + 1] === '\n') i++;
+			lines.push(current);
+			current = '';
+		} else {
+			current += char;
+		}
+	}
+	if (current.trim()) lines.push(current);
+	return lines;
+}
+
+const lines = splitCSVLines(csv);
 
 type CsvRow = {
 	name: string;

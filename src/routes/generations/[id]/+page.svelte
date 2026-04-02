@@ -52,7 +52,10 @@
 		}
 	}
 
-	$: timelineData = detail?.response as GenerateData | undefined;
+	$: timelineData = detail?.response ? {
+		...detail.response,
+		format: detail.response.format ?? (detail as Record<string, unknown>).format ?? 'gmail'
+	} as GenerateData : undefined;
 </script>
 
 <div class="flex flex-col gap-8">
@@ -63,6 +66,9 @@
 		</button>
 		<div class="flex items-center gap-3">
 			<h1 class="text-4xl font-black tracking-tight">Generation #{id}</h1>
+			{#if detail}
+				<span class="badge-blue">{detail.format ?? 'gmail'}</span>
+			{/if}
 		</div>
 		<div class="divider-glow"></div>
 	</div>

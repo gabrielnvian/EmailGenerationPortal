@@ -1,15 +1,10 @@
 <script lang="ts">
-	import {decodeEmailBody, getHeader, formatResponseTime, type GenerateData, type GmailMessage, type ThreadMessage} from "./generate/generate";
+	import {decodeEmailBody, formatResponseTime, extractMessageInfo, isSentByOwner, isUnread, type GenerateData, type OutputFormat, type TimelineMessage} from "./generate/generate";
 
 	export let data: GenerateData;
 
-	function isSentByOwner(gmail: GmailMessage): boolean {
-		return gmail.labelIds?.includes('SENT') ?? false;
-	}
-
-	function isUnread(gmail: GmailMessage): boolean {
-		return gmail.labelIds?.includes('UNREAD') ?? false;
-	}
+	$: format = data.format ?? 'gmail';
+	$: isEmail = format === 'gmail' || format === 'outlook';
 
 	const SENTIMENT_CLASS_COLORS: Record<string, { bg: string; color: string }> = {
 		positive: { bg: 'rgba(0,249,207,0.12)', color: '#00f9cf' },
@@ -23,12 +18,17 @@
 		declining: '↘',
 	};
 
-	// Flat list of all messages with their element IDs for scrolling
-	type FlatMsg = { ti: number; mi: number; msg: ThreadMessage; elId: string };
-	$: flatMessages = data.timeline.flatMap((t, ti) =>
-		t.messages.map((msg, mi) => ({ ti, mi, msg, elId: `msg-${ti}-${mi}` } as FlatMsg))
-	);
+	const FORMAT_LABELS: Record<string, string> = {
+		gmail: 'Gmail',
+		outlook: 'Outlook',
+		gcal: 'Google Calendar',
+	};
 
+	// Flat messages for distributions and scroll targeting
+	type FlatMsg = { ti: number; mi: number; msg: TimelineMessage; elId: string };
+	$: flatMessages = data.timeline.flatMap((g, ti) =>
+		g.messages.map((msg, mi) => ({ ti, mi, msg, elId: `msg-${ti}-${mi}` } as FlatMsg))
+	);
 	$: allMessages = flatMessages.map(f => f.msg);
 
 	$: sentimentClassDist = allMessages.reduce((acc, m) => {
@@ -38,29 +38,24 @@
 	}, {} as Record<string, number>);
 
 	$: categoryDist = allMessages.reduce((acc, m) => {
-		const cat = m.metadata.emailCategory;
+		const cat = m.metadata.category;
 		if (cat) acc[cat] = (acc[cat] ?? 0) + 1;
 		return acc;
 	}, {} as Record<string, number>);
 
-	$: hasSentimentClasses = Object.keys(sentimentClassDist).length > 0 && allMessages.some(m => m.metadata.sentimentClass);
+	$: hasSentimentClasses = allMessages.some(m => m.metadata.sentimentClass);
 	$: hasCategories = Object.keys(categoryDist).length > 0;
 
 	function scrollToSentiment(sentiment: string, badgeIndex: number) {
-		// Count how many times this sentiment has appeared before this badge in the progression
 		const occurrence = data.summary.sentimentProgression.slice(0, badgeIndex).filter(s => s === sentiment).length;
-
-		// Find the Nth message with this sentiment
 		let count = 0;
 		for (const fm of flatMessages) {
 			if (fm.msg.metadata.sentiment === sentiment) {
 				if (count === occurrence) {
 					const el = document.getElementById(fm.elId);
 					if (el) {
-						// Open the details element
 						if (el instanceof HTMLDetailsElement) el.open = true;
 						el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-						// Brief highlight
 						el.style.boxShadow = '0 0 0 2px #00f9cf66';
 						setTimeout(() => { el.style.boxShadow = ''; }, 2000);
 					}
@@ -75,12 +70,15 @@
 <!-- Summary -->
 {#if data.summary.arcDescription || data.summary.totalMessages}
 	<div class="surface p-5 flex flex-col gap-3">
-		<div class="section-label section-label--purple">Summary</div>
+		<div class="flex items-center gap-2">
+			<div class="section-label section-label--purple">Summary</div>
+			<span class="badge-blue ml-auto">{FORMAT_LABELS[format] ?? format}</span>
+		</div>
 		{#if data.summary.arcDescription}
 			<p class="text-sm text-white/80">{data.summary.arcDescription}</p>
 		{/if}
 		<div class="flex flex-wrap gap-4 text-xs text-white/50">
-			<span>{data.summary.totalMessages} messages</span>
+			<span>{data.summary.totalMessages} {isEmail ? 'messages' : 'events'}</span>
 			<span>{data.summary.timespanDays} days</span>
 		</div>
 		{#if data.summary.sentimentProgression.length > 0}
@@ -98,7 +96,6 @@
 			</div>
 		{/if}
 
-		<!-- Sentiment class distribution -->
 		{#if hasSentimentClasses}
 			<div class="flex items-center gap-3 text-xs">
 				<span class="text-white/40">Sentiment:</span>
@@ -114,7 +111,6 @@
 			</div>
 		{/if}
 
-		<!-- Email category distribution -->
 		{#if hasCategories}
 			<div class="flex flex-wrap gap-1.5">
 				{#each Object.entries(categoryDist).sort((a, b) => b[1] - a[1]) as [cat, count]}
@@ -126,23 +122,22 @@
 {/if}
 
 <!-- Timeline -->
-{#each data.timeline as thread, ti}
-	{@const scoring = thread.relationshipScoring}
+{#each data.timeline as group, ti}
+	{@const scoring = group.relationshipScoring}
 	<div class="surface p-5 flex flex-col gap-3">
-		<!-- Thread header -->
+		<!-- Group header -->
 		<div class="flex items-center gap-2 flex-wrap">
-			<div class="section-label section-label--cyan">Thread {ti + 1}</div>
-			<span class="text-sm text-white/60 ml-1 truncate">{thread.subject}</span>
-			<span class="text-xs text-white/40 ml-auto flex-shrink-0">{thread.messages.length} msg{thread.messages.length === 1 ? '' : 's'}</span>
+			<div class="section-label section-label--cyan">{isEmail ? 'Thread' : 'Event'} {ti + 1}</div>
+			<span class="text-sm text-white/60 ml-1 truncate">{group.title}</span>
+			<span class="text-xs text-white/40 ml-auto flex-shrink-0">
+				{group.messages.length} {isEmail ? (group.messages.length === 1 ? 'msg' : 'msgs') : (group.messages.length === 1 ? 'event' : 'events')}
+			</span>
 		</div>
 
-		<!-- Relationship scoring -->
 		{#if scoring}
 			<div class="flex flex-wrap gap-3 text-xs text-white/50">
-				<span>{scoring.communicationFrequency.toFixed(2)} msgs/day</span>
-				<span>
-					{TREND_ARROWS[scoring.sentimentTrend] ?? '→'} {scoring.sentimentTrend}
-				</span>
+				<span>{scoring.communicationFrequency.toFixed(2)} {isEmail ? 'msgs' : 'events'}/day</span>
+				<span>{TREND_ARROWS[scoring.sentimentTrend] ?? '→'} {scoring.sentimentTrend}</span>
 				<span class="px-1.5 py-0.5 rounded text-[10px] font-medium"
 					style="background:{scoring.engagementLevel === 'high' ? '#00f9cf14' : scoring.engagementLevel === 'medium' ? '#29b0ff14' : '#ffffff08'}; color:{scoring.engagementLevel === 'high' ? '#00f9cf' : scoring.engagementLevel === 'medium' ? '#5cc4ff' : 'rgba(255,255,255,0.45)'};">
 					{scoring.engagementLevel} engagement
@@ -153,69 +148,76 @@
 
 		<!-- Messages -->
 		<div class="flex flex-col gap-2">
-			{#each thread.messages as msg, mi}
-				{@const from = getHeader(msg.gmail, 'From')}
-				{@const to = getHeader(msg.gmail, 'To')}
-				{@const date = getHeader(msg.gmail, 'Date')}
-				{@const sent = isSentByOwner(msg.gmail)}
-				{@const unread = !sent && isUnread(msg.gmail)}
+			{#each group.messages as msg, mi}
+				{@const info = extractMessageInfo(msg.output, format)}
+				{@const sent = isSentByOwner(msg.output, format)}
+				{@const unreadMsg = !sent && isUnread(msg.output, format)}
 				{@const scColors = SENTIMENT_CLASS_COLORS[msg.metadata.sentimentClass ?? ''] ?? null}
 				<details id="msg-{ti}-{mi}" class="surface-inset overflow-hidden" style="transition: box-shadow 0.3s ease;">
-					<summary class="px-4 py-3 cursor-pointer text-sm hover:text-white transition-colors flex items-center gap-2 flex-wrap {unread ? 'text-white font-semibold' : 'text-white/70'}">
+					<summary class="px-4 py-3 cursor-pointer text-sm hover:text-white transition-colors flex items-center gap-2 flex-wrap {unreadMsg ? 'text-white font-semibold' : 'text-white/70'}">
 						<span class="text-white/80 font-medium">#{mi + 1}</span>
 
-						<!-- Sent / Received / Unread -->
-						{#if sent}
-							<span class="text-xs px-1.5 py-0.5 rounded font-medium" style="background:#00f9cf14; color:#00f9cf;">Sent</span>
-						{:else if unread}
-							<span class="text-xs px-1.5 py-0.5 rounded font-medium flex items-center gap-1" style="background:#8c45ff20; color:#b88aff;">
-								<span class="w-1.5 h-1.5 rounded-full inline-block" style="background:#b88aff;"></span>
-								Unread
-							</span>
-						{:else}
-							<span class="text-xs px-1.5 py-0.5 rounded font-medium" style="background:#8c45ff14; color:#b88aff;">Received</span>
+						<!-- Sent / Received / Unread (email only) -->
+						{#if isEmail}
+							{#if sent}
+								<span class="text-xs px-1.5 py-0.5 rounded font-medium" style="background:#00f9cf14; color:#00f9cf;">Sent</span>
+							{:else if unreadMsg}
+								<span class="text-xs px-1.5 py-0.5 rounded font-medium flex items-center gap-1" style="background:#8c45ff20; color:#b88aff;">
+									<span class="w-1.5 h-1.5 rounded-full inline-block" style="background:#b88aff;"></span>
+									Unread
+								</span>
+							{:else}
+								<span class="text-xs px-1.5 py-0.5 rounded font-medium" style="background:#8c45ff14; color:#b88aff;">Received</span>
+							{/if}
 						{/if}
 
-						<!-- Sentiment class badge -->
 						{#if scColors}
 							<span class="text-xs px-1.5 py-0.5 rounded" style="background:{scColors.bg}; color:{scColors.color};">{msg.metadata.sentimentClass}</span>
 						{/if}
 
-						<!-- Existing granular sentiment + stage -->
 						<span class="badge-cyan">{msg.metadata.sentiment}</span>
 						<span class="badge-purple">{msg.metadata.relationshipStage}</span>
 
-						<!-- Urgency -->
 						{#if msg.metadata.urgency !== 'low'}
 							<span class="text-xs px-2 py-0.5 rounded-full" style="background:rgba(255,107,107,0.12); color:#ff8080;">{msg.metadata.urgency}</span>
 						{/if}
 
-						<!-- Business value -->
 						{#if msg.metadata.businessValue != null}
 							<span class="text-[10px] px-1.5 py-0.5 rounded font-mono" style="background:#29b0ff14; color:#5cc4ff;">
 								bv {msg.metadata.businessValue.toFixed(2)}
 							</span>
 						{/if}
 
-						<!-- Email category -->
-						{#if msg.metadata.emailCategory}
-							<span class="badge-blue">{msg.metadata.emailCategory}</span>
+						{#if msg.metadata.category}
+							<span class="badge-blue">{msg.metadata.category}</span>
 						{/if}
 					</summary>
 					<div class="flex flex-col border-t border-[#222336]">
-						<!-- Email headers + response time -->
+						<!-- Headers -->
 						<div class="px-4 py-3 flex flex-col gap-1 text-xs border-b border-[#222336]">
-							{#if from}<div><span class="text-white/40">From:</span> <span class="text-white/70">{from}</span></div>{/if}
-							{#if to}<div><span class="text-white/40">To:</span> <span class="text-white/70">{to}</span></div>{/if}
-							{#if date}<div><span class="text-white/40">Date:</span> <span class="text-white/70">{date}</span></div>{/if}
+							{#if isEmail}
+								{#if info.from}<div><span class="text-white/40">From:</span> <span class="text-white/70">{info.from}</span></div>{/if}
+								{#if info.to}<div><span class="text-white/40">To:</span> <span class="text-white/70">{info.to}</span></div>{/if}
+								{#if info.date}<div><span class="text-white/40">Date:</span> <span class="text-white/70">{info.date}</span></div>{/if}
+							{:else}
+								<!-- Calendar event -->
+								{@const evt = msg.output}
+								{#if info.date}<div><span class="text-white/40">Start:</span> <span class="text-white/70">{info.date}</span></div>{/if}
+								{#if evt.end?.dateTime}<div><span class="text-white/40">End:</span> <span class="text-white/70">{evt.end.dateTime}</span></div>{/if}
+								{#if evt.location}<div><span class="text-white/40">Location:</span> <span class="text-white/70">{evt.location}</span></div>{/if}
+								{#if info.to}<div><span class="text-white/40">Attendees:</span> <span class="text-white/70">{info.to}</span></div>{/if}
+								{#if evt.conferenceData?.entryPoints?.[0]?.uri}
+									<div><span class="text-white/40">Video:</span> <span class="text-white/70">{evt.conferenceData.entryPoints[0].uri}</span></div>
+								{/if}
+							{/if}
 							{#if msg.metadata.responseTimeMinutes != null}
 								<div style="color:#29b0ff;">replied in {formatResponseTime(msg.metadata.responseTimeMinutes)}</div>
 							{/if}
 						</div>
 
-						<!-- Email body -->
+						<!-- Body -->
 						<div class="px-4 py-3 text-sm text-white/75 whitespace-pre-wrap leading-relaxed">
-							{decodeEmailBody(msg.gmail.payload?.body?.data ?? '')}
+							{info.body}
 						</div>
 
 						<!-- Metadata tags -->

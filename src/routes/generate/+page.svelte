@@ -2,7 +2,8 @@
 	import {goto} from "$app/navigation";
 	import {base} from '$app/paths';
 	import {personas} from "../../personas";
-	import {generateEmails, personaToGeneratePersona, type GenerateData, type GenerateResult} from "./generate";
+	import {generateEmails, personaToGeneratePersona, fetchFormats, type GenerateData, type GenerateResult, type OutputFormat} from "./generate";
+	import {onMount} from "svelte";
 	import type {Persona} from "../../personas.model";
 	import TimelineView from "../TimelineView.svelte";
 
@@ -15,6 +16,13 @@
 	$: personaLeft = personaIdxLeft >= 0 ? $personas[personaIdxLeft] ?? null : null;
 	$: personaRight = personaIdxRight >= 0 ? $personas[personaIdxRight] ?? null : null;
 	$: selectedPersonas = [personaLeft, personaRight].filter((p): p is Persona => p !== null);
+
+	// --- Format ---
+	let availableFormats: OutputFormat[] = ['gmail'];
+	let selectedFormat: OutputFormat = 'gmail';
+	onMount(async () => {
+		availableFormats = await fetchFormats();
+	});
 
 	// --- Generation fields ---
 	let relationship: string = "";
@@ -48,6 +56,7 @@
 			arc: arc.trim() || undefined,
 			threadCount,
 			timespan: timespan.trim() || undefined,
+			format: selectedFormat,
 		});
 
 		if (result.success) {
@@ -61,7 +70,7 @@
 				sentimentProgression: d?.summary?.sentimentProgression ?? [],
 				arcDescription: d?.summary?.arcDescription ?? '',
 			};
-			status = { type: 'success', data: { timeline, summary }, id: result.id };
+			status = { type: 'success', data: { format: d?.format ?? selectedFormat, timeline, summary }, id: result.id };
 		} else {
 			status = { type: 'error', message: result.error };
 		}
@@ -165,9 +174,17 @@
 			></textarea>
 		</div>
 
-		<div class="grid grid-cols-2 gap-4">
+		<div class="grid grid-cols-3 gap-4">
 			<div class="flex flex-col gap-1.5">
-				<label class="text-xs text-white/70 font-medium" for="thread-count-input">Thread count</label>
+				<label class="text-xs text-white/70 font-medium" for="format-select">Format</label>
+				<select id="format-select" class="field" bind:value={selectedFormat}>
+					{#each availableFormats as fmt}
+						<option value={fmt}>{fmt === 'gmail' ? 'Gmail' : fmt === 'outlook' ? 'Outlook' : fmt === 'gcal' ? 'Google Calendar' : fmt}</option>
+					{/each}
+				</select>
+			</div>
+			<div class="flex flex-col gap-1.5">
+				<label class="text-xs text-white/70 font-medium" for="thread-count-input">{selectedFormat === 'gcal' ? 'Event count' : 'Thread count'}</label>
 				<input id="thread-count-input" class="field" bind:value={threadCount} type="number" min="1" max="20"/>
 			</div>
 			<div class="flex flex-col gap-1.5">
@@ -194,7 +211,7 @@
 			</div>
 		{:else if status.type === 'success'}
 			<div class="alert-success">
-				Generated {status.data.summary.totalMessages} message{status.data.summary.totalMessages === 1 ? '' : 's'} across {status.data.timeline.length} thread{status.data.timeline.length === 1 ? '' : 's'}
+				Generated {status.data.summary.totalMessages} {status.data.format === 'gcal' ? 'event' : 'message'}{status.data.summary.totalMessages === 1 ? '' : 's'} across {status.data.timeline.length} {status.data.format === 'gcal' ? 'event' : 'thread'}{status.data.timeline.length === 1 ? '' : 's'}
 			</div>
 		{:else if status.type === 'error'}
 			<div class="alert-error">{status.message}</div>

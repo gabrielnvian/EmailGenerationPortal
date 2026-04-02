@@ -6,6 +6,7 @@
 	let query = "";
 	let personaFilter = "";
 	let sentimentFilter = "";
+	let formatFilter = "";
 	let rows: GenerationSummaryRow[] = [];
 	let total = 0;
 	let offset = 0;
@@ -29,6 +30,7 @@
 		if (query.trim()) params.q = query.trim();
 		if (personaFilter.trim()) params.persona = personaFilter.trim();
 		if (sentimentFilter.trim()) params.sentiment = sentimentFilter.trim();
+		if (formatFilter) params.format = formatFilter;
 
 		const result = await listGenerations(params);
 		if (result.success) {
@@ -96,19 +98,25 @@
 			/>
 			<button class="btn btn-primary btn-sm rounded-xl flex-shrink-0" on:click={search}>Search</button>
 		</div>
-		<div class="grid grid-cols-2 gap-3">
+		<div class="grid grid-cols-3 gap-3">
 			<input
 				class="field text-sm"
-				placeholder="Filter by persona name or email"
+				placeholder="Filter by persona"
 				bind:value={personaFilter}
 				on:keydown={(e) => e.key === 'Enter' && search()}
 			/>
 			<input
 				class="field text-sm"
-				placeholder="Filter by sentiment (e.g. tense, rapport)"
+				placeholder="Filter by sentiment"
 				bind:value={sentimentFilter}
 				on:keydown={(e) => e.key === 'Enter' && search()}
 			/>
+			<select class="field text-sm" bind:value={formatFilter} on:change={search}>
+				<option value="">All formats</option>
+				<option value="gmail">Gmail</option>
+				<option value="outlook">Outlook</option>
+				<option value="gcal">Google Calendar</option>
+			</select>
 		</div>
 	</div>
 
@@ -133,6 +141,7 @@
 					<div class="flex items-center justify-between gap-4">
 						<div class="flex items-center gap-3 min-w-0">
 							<span class="text-xs text-white/30 font-mono">#{row.id}</span>
+							<span class="badge-blue">{row.format ?? 'gmail'}</span>
 							<span class="text-sm font-semibold text-white truncate">{row.persona_0_name}</span>
 							<span class="text-xs text-white/30">↔</span>
 							<span class="text-sm font-semibold text-white truncate">{row.persona_1_name}</span>

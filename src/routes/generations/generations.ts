@@ -1,5 +1,5 @@
 import {PUBLIC_GENERATE_URL} from '$env/static/public';
-import type {GenerateData} from '../generate/generate';
+import type {GenerateData, OutputFormat} from '../generate/generate';
 
 /** Derive the API base from the generate URL (strip /generate suffix). */
 const API_BASE = PUBLIC_GENERATE_URL.replace(/\/generate\/?$/, '');
@@ -9,6 +9,7 @@ const API_BASE = PUBLIC_GENERATE_URL.replace(/\/generate\/?$/, '');
 export type GenerationSummaryRow = {
 	id: number;
 	created_at: string;
+	format: OutputFormat;
 	persona_0_name: string;
 	persona_0_email: string;
 	persona_1_name: string;
@@ -24,12 +25,14 @@ export type GenerationSummaryRow = {
 export type GenerationDetail = GenerationSummaryRow & {
 	request: Record<string, unknown>;
 	response: GenerateData;
+	format: OutputFormat;
 };
 
 export type ListParams = {
 	q?: string;
 	persona?: string;
 	sentiment?: string;
+	format?: string;
 	limit?: number;
 	offset?: number;
 };
@@ -54,6 +57,7 @@ export async function listGenerations(params: ListParams = {}): Promise<ListResu
 		if (params.q) query.set('q', params.q);
 		if (params.persona) query.set('persona', params.persona);
 		if (params.sentiment) query.set('sentiment', params.sentiment);
+		if (params.format) query.set('format', params.format);
 		if (params.limit !== undefined) query.set('limit', String(params.limit));
 		if (params.offset !== undefined) query.set('offset', String(params.offset));
 

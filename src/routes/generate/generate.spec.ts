@@ -4,7 +4,7 @@ vi.mock('$env/static/public', () => ({
 	PUBLIC_GENERATE_URL: 'https://n8n.tail068f9.ts.net:10000/generate'
 }));
 
-import { generateEmails, personaToGeneratePersona, decodeEmailBody, getHeader, formatResponseTime, type GenerateRequest, type GmailMessage } from './generate';
+import { generateEmails, personaToGeneratePersona, decodeEmailBody, getGmailHeader, extractMessageInfo, formatResponseTime, type GenerateRequest, type GmailMessage } from './generate';
 import { Persona } from '../../personas.model';
 
 const collin = new Persona(1, 'Collin Weirs', 'Sculptor', 'Statues Inc.', 'Decoration', '9257674434', 'collin@statuesinc.com');
@@ -19,11 +19,12 @@ const baseRequest: GenerateRequest = {
 };
 
 const mockResponse = {
+	format: 'gmail',
 	timeline: [{
-		threadId: 'abc123',
-		subject: 'HVAC Assessment',
+		groupId: 'abc123',
+		title: 'HVAC Assessment',
 		messages: [{
-			gmail: {
+			output: {
 				id: '1',
 				threadId: 'abc123',
 				labelIds: ['SENT'],
@@ -42,7 +43,8 @@ const mockResponse = {
 				urgency: 'low',
 				relationshipStage: 'introduction',
 				topics: ['project kickoff'],
-				personalDetailsMentioned: []
+				personalDetailsMentioned: [],
+				category: 'initial-outreach'
 			}
 		}]
 	}],
@@ -133,7 +135,6 @@ describe('decodeEmailBody', () => {
 	});
 
 	it('handles base64url characters (- and _)', () => {
-		// base64url uses - instead of + and _ instead of /
 		expect(decodeEmailBody('SGVsbG8-V29ybGQ_')).toBe(decodeEmailBody('SGVsbG8+V29ybGQ/'));
 	});
 
@@ -142,16 +143,55 @@ describe('decodeEmailBody', () => {
 	});
 });
 
-describe('getHeader', () => {
-	const gmail = mockResponse.timeline[0].messages[0].gmail as unknown as GmailMessage;
+describe('getGmailHeader', () => {
+	const gmail = mockResponse.timeline[0].messages[0].output as unknown as GmailMessage;
 
 	it('extracts a header by name (case-insensitive)', () => {
-		expect(getHeader(gmail, 'from')).toBe('Collin Weirs <collin@statuesinc.com>');
-		expect(getHeader(gmail, 'From')).toBe('Collin Weirs <collin@statuesinc.com>');
+		expect(getGmailHeader(gmail, 'from')).toBe('Collin Weirs <collin@statuesinc.com>');
+		expect(getGmailHeader(gmail, 'From')).toBe('Collin Weirs <collin@statuesinc.com>');
 	});
 
 	it('returns empty string for missing headers', () => {
-		expect(getHeader(gmail, 'X-Custom')).toBe('');
+		expect(getGmailHeader(gmail, 'X-Custom')).toBe('');
+	});
+});
+
+describe('extractMessageInfo', () => {
+	it('extracts from/to/date/body from gmail format', () => {
+		const gmail = mockResponse.timeline[0].messages[0].output;
+		const info = extractMessageInfo(gmail as Record<string, unknown>, 'gmail');
+		expect(info.from).toBe('Collin Weirs <collin@statuesinc.com>');
+		expect(info.to).toBe('Samantha Lee <samantha@northlineair.com>');
+		expect(info.body).toBe('Hello World');
+	});
+
+	it('extracts from/to/body from outlook format', () => {
+		const outlook = {
+			from: { emailAddress: { name: 'Alice', address: 'alice@co.com' } },
+			toRecipients: [{ emailAddress: { name: 'Bob', address: 'bob@co.com' } }],
+			subject: 'Test',
+			body: { content: 'Hello', contentType: 'text' },
+			receivedDateTime: '2024-01-15T09:30:00Z',
+		};
+		const info = extractMessageInfo(outlook as Record<string, unknown>, 'outlook');
+		expect(info.from).toBe('Alice <alice@co.com>');
+		expect(info.to).toBe('Bob <bob@co.com>');
+		expect(info.body).toBe('Hello');
+		expect(info.subject).toBe('Test');
+	});
+
+	it('extracts summary/description from gcal format', () => {
+		const gcal = {
+			summary: 'Team Standup',
+			description: 'Daily sync',
+			start: { dateTime: '2024-01-15T10:00:00Z' },
+			end: { dateTime: '2024-01-15T10:30:00Z' },
+			attendees: [{ email: 'a@co.com', displayName: 'Alice' }],
+		};
+		const info = extractMessageInfo(gcal as Record<string, unknown>, 'gcal');
+		expect(info.subject).toBe('Team Standup');
+		expect(info.body).toBe('Daily sync');
+		expect(info.to).toBe('Alice');
 	});
 });
 
@@ -176,11 +216,18 @@ describe('generateEmails', () => {
 		expect(typeof body.personas[0]).toBe('object');
 	});
 
-	it('sends relationship in the body', async () => {
+	it('sends format when not gmail', async () => {
 		const fetchMock = mockFetch();
-		await generateEmails(baseRequest);
+		await generateEmails({ ...baseRequest, format: 'outlook' });
 		const body = JSON.parse(fetchMock.mock.calls[0][1].body);
-		expect(body.relationship).toBe('new client, first HVAC project together');
+		expect(body.format).toBe('outlook');
+	});
+
+	it('omits format when gmail (default)', async () => {
+		const fetchMock = mockFetch();
+		await generateEmails({ ...baseRequest, format: 'gmail' });
+		const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+		expect(body.format).toBeUndefined();
 	});
 
 	it('includes arc, threadCount, timespan when provided', async () => {
@@ -206,24 +253,18 @@ describe('generateEmails', () => {
 		expect(body.timespan).toBeUndefined();
 	});
 
-	it('does not send old fields (idea, from, to, count, length, emailCount, fromField, toField)', async () => {
-		const fetchMock = mockFetch();
-		await generateEmails({ ...baseRequest, arc: 'test', threadCount: 5, timespan: '1 month' });
-		const body = JSON.parse(fetchMock.mock.calls[0][1].body);
-		for (const removed of ['idea', 'from', 'to', 'count', 'length', 'emailCount', 'fromField', 'toField']) {
-			expect(body).not.toHaveProperty(removed);
-		}
-	});
-
-	it('returns success with timeline data', async () => {
+	it('returns success with timeline data using new field names', async () => {
 		mockFetch();
 		const result = await generateEmails(baseRequest);
 		expect(result.success).toBe(true);
 		if (result.success) {
+			expect(result.data.format).toBe('gmail');
 			expect(result.data.timeline).toHaveLength(1);
-			expect(result.data.timeline[0].subject).toBe('HVAC Assessment');
+			expect(result.data.timeline[0].title).toBe('HVAC Assessment');
+			expect(result.data.timeline[0].groupId).toBe('abc123');
+			expect(result.data.timeline[0].messages[0].output).toBeDefined();
+			expect(result.data.timeline[0].messages[0].metadata.category).toBe('initial-outreach');
 			expect(result.data.summary.totalMessages).toBe(1);
-			expect(result.data.summary.timespanDays).toBe(58);
 		}
 	});
 

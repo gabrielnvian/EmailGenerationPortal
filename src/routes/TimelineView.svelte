@@ -1,5 +1,5 @@
 <script lang="ts">
-	import {decodeEmailBody, getHeader, formatResponseTime, type GenerateData, type GmailMessage} from "./generate/generate";
+	import {decodeEmailBody, getHeader, formatResponseTime, type GenerateData, type GmailMessage, type ThreadMessage} from "./generate/generate";
 
 	export let data: GenerateData;
 
@@ -23,8 +23,13 @@
 		declining: '↘',
 	};
 
-	// Compute distributions across all messages for the summary
-	$: allMessages = data.timeline.flatMap(t => t.messages);
+	// Flat list of all messages with their element IDs for scrolling
+	type FlatMsg = { ti: number; mi: number; msg: ThreadMessage; elId: string };
+	$: flatMessages = data.timeline.flatMap((t, ti) =>
+		t.messages.map((msg, mi) => ({ ti, mi, msg, elId: `msg-${ti}-${mi}` } as FlatMsg))
+	);
+
+	$: allMessages = flatMessages.map(f => f.msg);
 
 	$: sentimentClassDist = allMessages.reduce((acc, m) => {
 		const cls = m.metadata.sentimentClass ?? 'neutral';
@@ -40,6 +45,31 @@
 
 	$: hasSentimentClasses = Object.keys(sentimentClassDist).length > 0 && allMessages.some(m => m.metadata.sentimentClass);
 	$: hasCategories = Object.keys(categoryDist).length > 0;
+
+	function scrollToSentiment(sentiment: string, badgeIndex: number) {
+		// Count how many times this sentiment has appeared before this badge in the progression
+		const occurrence = data.summary.sentimentProgression.slice(0, badgeIndex).filter(s => s === sentiment).length;
+
+		// Find the Nth message with this sentiment
+		let count = 0;
+		for (const fm of flatMessages) {
+			if (fm.msg.metadata.sentiment === sentiment) {
+				if (count === occurrence) {
+					const el = document.getElementById(fm.elId);
+					if (el) {
+						// Open the details element
+						if (el instanceof HTMLDetailsElement) el.open = true;
+						el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+						// Brief highlight
+						el.style.boxShadow = '0 0 0 2px #00f9cf66';
+						setTimeout(() => { el.style.boxShadow = ''; }, 2000);
+					}
+					return;
+				}
+				count++;
+			}
+		}
+	}
 </script>
 
 <!-- Summary -->
@@ -56,7 +86,11 @@
 		{#if data.summary.sentimentProgression.length > 0}
 			<div class="flex flex-wrap gap-1.5">
 				{#each data.summary.sentimentProgression as sentiment, i}
-					<span class="badge-cyan">{sentiment}</span>
+					<button
+						class="badge-cyan cursor-pointer hover:brightness-125 transition-all"
+						on:click={() => scrollToSentiment(sentiment, i)}
+						title="Jump to message"
+					>{sentiment}</button>
 					{#if i < data.summary.sentimentProgression.length - 1}
 						<span class="text-white/25 text-xs self-center">→</span>
 					{/if}
@@ -126,7 +160,7 @@
 				{@const sent = isSentByOwner(msg.gmail)}
 				{@const unread = !sent && isUnread(msg.gmail)}
 				{@const scColors = SENTIMENT_CLASS_COLORS[msg.metadata.sentimentClass ?? ''] ?? null}
-				<details class="surface-inset overflow-hidden">
+				<details id="msg-{ti}-{mi}" class="surface-inset overflow-hidden" style="transition: box-shadow 0.3s ease;">
 					<summary class="px-4 py-3 cursor-pointer text-sm hover:text-white transition-colors flex items-center gap-2 flex-wrap {unread ? 'text-white font-semibold' : 'text-white/70'}">
 						<span class="text-white/80 font-medium">#{mi + 1}</span>
 

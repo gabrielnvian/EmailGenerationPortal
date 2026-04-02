@@ -26,7 +26,9 @@
 		phone: '',
 		email: '',
 		supervisorId: null as number | null,
-		isSelfSupervisor: false
+		isSelfSupervisor: false,
+		personality: '',
+		signature: ''
 	};
 
 	$: supervisorOptions = [...$personas].sort((a, b) => a.name.localeCompare(b.name));
@@ -52,7 +54,9 @@
 			phone: persona.phone,
 			email: persona.email,
 			supervisorId: isSelf ? null : (persona.supervisor?.id ?? null),
-			isSelfSupervisor: isSelf
+			isSelfSupervisor: isSelf,
+			personality: persona.personality ?? '',
+			signature: persona.signature ?? ''
 		};
 		errorMessage = '';
 	}
@@ -72,7 +76,9 @@
 			phone: '',
 			email: '',
 			supervisorId: null,
-			isSelfSupervisor: false
+			isSelfSupervisor: false,
+			personality: '',
+			signature: ''
 		};
 		errorMessage = '';
 	}
@@ -104,7 +110,9 @@
 			phone: form.phone.trim(),
 			email: form.email.trim().toLowerCase(),
 			supervisorId: form.supervisorId,
-			isSelfSupervisor: form.isSelfSupervisor
+			isSelfSupervisor: form.isSelfSupervisor,
+			personality: form.personality.trim(),
+			signature: form.signature.trim()
 		};
 
 		// Client-side validation
@@ -251,6 +259,32 @@
 						autocomplete="off"
 						required
 					/>
+				</div>
+			</div>
+
+			<div class="grid grid-cols-1 gap-4 mt-4">
+				<div class="flex flex-col gap-2">
+					<label class="text-sm text-white/80 font-medium" for="persona-personality">
+						Personality <span class="text-white/30 font-normal text-xs">optional</span>
+					</label>
+					<textarea
+						id="persona-personality"
+						class="field h-20 resize-none"
+						placeholder="Demanding, impatient, passive-aggressive when deadlines slip. Name-drops credentials."
+						bind:value={form.personality}
+					></textarea>
+				</div>
+
+				<div class="flex flex-col gap-2">
+					<label class="text-sm text-white/80 font-medium" for="persona-signature">
+						Email Signature <span class="text-white/30 font-normal text-xs">optional</span>
+					</label>
+					<textarea
+						id="persona-signature"
+						class="field h-24 resize-none font-mono text-xs"
+						placeholder={"Derek Huang\nMechanical Engineer, Brightwater Engineering\n415-832-7194 | derek@brightwatereng.com"}
+						bind:value={form.signature}
+					></textarea>
 				</div>
 			</div>
 

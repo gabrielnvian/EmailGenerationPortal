@@ -57,6 +57,9 @@
 				<span>{persona.email}</span>
 				<span>{persona.phone}</span>
 			</div>
+			{#if persona.personality}
+				<p class="text-white/35 mt-1 line-clamp-2">{persona.personality}</p>
+			{/if}
 		</div>
 
 		{#if showSup}

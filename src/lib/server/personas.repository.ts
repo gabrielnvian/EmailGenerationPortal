@@ -9,6 +9,8 @@ export type PersonaRow = {
 	phone: string;
 	email: string;
 	supervisor_id: number | null;
+	personality: string | null;
+	signature: string | null;
 };
 
 export type CreatePersonaInput = {
@@ -20,6 +22,8 @@ export type CreatePersonaInput = {
 	email: string;
 	supervisorId: number | null;
 	isSelfSupervisor: boolean;
+	personality: string;
+	signature: string;
 };
 
 export type UpdatePersonaInput = CreatePersonaInput;
@@ -51,18 +55,17 @@ export function createPersona(data: CreatePersonaInput): PersonaRow {
 	const db = getDb();
 
 	const insert = db.prepare(`
-		INSERT INTO personas (name, job_title, company, field, phone, email, supervisor_id)
-		VALUES (?, ?, ?, ?, ?, ?, ?)
+		INSERT INTO personas (name, job_title, company, field, phone, email, supervisor_id, personality, signature)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`);
 
 	if (data.isSelfSupervisor) {
-		// Insert without supervisor, then update to point to self
-		const result = insert.run(data.name, data.jobTitle, data.company, data.field, data.phone, data.email, null);
+		const result = insert.run(data.name, data.jobTitle, data.company, data.field, data.phone, data.email, null, data.personality || null, data.signature || null);
 		const id = result.lastInsertRowid as number;
 		db.prepare('UPDATE personas SET supervisor_id = ? WHERE id = ?').run(id, id);
 		return getPersonaById(id)!;
 	} else {
-		const result = insert.run(data.name, data.jobTitle, data.company, data.field, data.phone, data.email, data.supervisorId);
+		const result = insert.run(data.name, data.jobTitle, data.company, data.field, data.phone, data.email, data.supervisorId, data.personality || null, data.signature || null);
 		return getPersonaById(result.lastInsertRowid as number)!;
 	}
 }
@@ -79,9 +82,9 @@ export function updatePersona(id: number, data: UpdatePersonaInput): PersonaRow 
 
 	db.prepare(`
 		UPDATE personas
-		SET name = ?, job_title = ?, company = ?, field = ?, phone = ?, email = ?, supervisor_id = ?
+		SET name = ?, job_title = ?, company = ?, field = ?, phone = ?, email = ?, supervisor_id = ?, personality = ?, signature = ?
 		WHERE id = ?
-	`).run(data.name, data.jobTitle, data.company, data.field, data.phone, data.email, supervisorId, id);
+	`).run(data.name, data.jobTitle, data.company, data.field, data.phone, data.email, supervisorId, data.personality || null, data.signature || null, id);
 
 	return getPersonaById(id)!;
 }

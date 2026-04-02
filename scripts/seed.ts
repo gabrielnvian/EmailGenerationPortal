@@ -55,7 +55,9 @@ db.exec(`
 		field         TEXT NOT NULL,
 		phone         TEXT NOT NULL DEFAULT '',
 		email         TEXT NOT NULL UNIQUE,
-		supervisor_id INTEGER REFERENCES personas(id) ON DELETE SET NULL
+		supervisor_id INTEGER REFERENCES personas(id) ON DELETE SET NULL,
+		personality   TEXT,
+		signature     TEXT
 	);
 	CREATE INDEX IF NOT EXISTS idx_personas_supervisor ON personas(supervisor_id);
 `);
@@ -71,6 +73,8 @@ type CsvRow = {
 	phone: string;
 	email: string;
 	supervisorRowNum: number;
+	personality: string;
+	signature: string;
 };
 
 // Parse all CSV rows
@@ -85,7 +89,9 @@ for (let i = 1; i < lines.length; i++) {
 		field: fields[3] ?? '',
 		phone: fields[4] ?? '',
 		email: fields[5] ?? '',
-		supervisorRowNum: parseInt(fields[6] ?? '')
+		supervisorRowNum: parseInt(fields[6] ?? ''),
+		personality: fields[7] ?? '',
+		signature: fields[8] ?? ''
 	});
 }
 
@@ -93,8 +99,8 @@ console.log(`Parsed ${rows.length} personas from CSV.`);
 
 // Pass 1: Insert all personas without supervisors
 const insertStmt = db.prepare(`
-	INSERT INTO personas (name, job_title, company, field, phone, email, supervisor_id)
-	VALUES (?, ?, ?, ?, ?, ?, NULL)
+	INSERT INTO personas (name, job_title, company, field, phone, email, supervisor_id, personality, signature)
+	VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?)
 `);
 
 // Map from CSV data index (0-based) to DB id
@@ -103,7 +109,11 @@ const csvIndexToDbId = new Map<number, number>();
 const insertAll = db.transaction(() => {
 	for (let i = 0; i < rows.length; i++) {
 		const row = rows[i];
-		const result = insertStmt.run(row.name, row.jobTitle, row.company, row.field, row.phone, row.email);
+		const result = insertStmt.run(
+			row.name, row.jobTitle, row.company, row.field, row.phone, row.email,
+			row.personality.trim() || null,
+			row.signature.trim() || null
+		);
 		csvIndexToDbId.set(i, result.lastInsertRowid as number);
 	}
 });
@@ -140,11 +150,15 @@ console.log(`Assigned ${assignedCount} supervisor relationships.`);
 const count = db.prepare('SELECT COUNT(*) as count FROM personas').get() as { count: number };
 const withSupervisor = db.prepare('SELECT COUNT(*) as count FROM personas WHERE supervisor_id IS NOT NULL').get() as { count: number };
 const selfSupervised = db.prepare('SELECT COUNT(*) as count FROM personas WHERE supervisor_id = id').get() as { count: number };
+const withPersonality = db.prepare('SELECT COUNT(*) as count FROM personas WHERE personality IS NOT NULL').get() as { count: number };
+const withSignature = db.prepare('SELECT COUNT(*) as count FROM personas WHERE signature IS NOT NULL').get() as { count: number };
 
 console.log(`\nDatabase seeded successfully:`);
 console.log(`  Total personas: ${count.count}`);
 console.log(`  With supervisor: ${withSupervisor.count}`);
 console.log(`  Self-supervised: ${selfSupervised.count}`);
+console.log(`  With personality: ${withPersonality.count}`);
+console.log(`  With signature: ${withSignature.count}`);
 console.log(`  Database: ${DB_PATH}`);
 
 db.close();

@@ -7,24 +7,14 @@
 	import TimelineView from "../TimelineView.svelte";
 
 	// --- Persona selection + per-persona extras ---
-	let selectedPersonas: Persona[] = [];
+	let personaIdxLeft: number = -1;
+	let personaIdxRight: number = -1;
 	let tones: Record<number, string> = {};
 	let personalDetails: Record<number, string> = {};
-	let personaIdx: number = 0;
 
-	function addPersona() {
-		const p = $personas[personaIdx];
-		if (!p || selectedPersonas.length >= 2 || selectedPersonas.some(s => s.id === p.id)) return;
-		selectedPersonas = [...selectedPersonas, p];
-	}
-
-	function removePersona(id: number) {
-		selectedPersonas = selectedPersonas.filter(p => p.id !== id);
-		delete tones[id];
-		delete personalDetails[id];
-		tones = tones;
-		personalDetails = personalDetails;
-	}
+	$: personaLeft = personaIdxLeft >= 0 ? $personas[personaIdxLeft] ?? null : null;
+	$: personaRight = personaIdxRight >= 0 ? $personas[personaIdxRight] ?? null : null;
+	$: selectedPersonas = [personaLeft, personaRight].filter((p): p is Persona => p !== null);
 
 	// --- Generation fields ---
 	let relationship: string = "";
@@ -91,70 +81,64 @@
 	</div>
 
 	<!-- Personas -->
-	<div class="surface p-5 flex flex-col gap-4">
-		<div class="section-label section-label--cyan">
-			Personas
-			<span class="ml-auto normal-case tracking-normal font-normal text-white/40">exactly 2</span>
+	<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+		<!-- Left: Inbox Owner -->
+		<div class="surface p-5 flex flex-col gap-4">
+			<div class="section-label section-label--cyan">Inbox Owner</div>
+			<select class="field" bind:value={personaIdxLeft}>
+				<option value={-1} disabled>Select persona...</option>
+				{#each $personas as persona, idx (persona.id)}
+					{#if idx !== personaIdxRight}
+						<option value={idx}>{persona.name} — {persona.company}</option>
+					{/if}
+				{/each}
+			</select>
+			{#if personaLeft}
+				<div class="surface-inset p-3 flex flex-col gap-1 text-xs">
+					<span class="text-white/70">{personaLeft.jobTitle} @ {personaLeft.company}</span>
+					<span class="text-white/45">{personaLeft.email}</span>
+					{#if personaLeft.personality}<span class="text-white/35 truncate" title={personaLeft.personality}>{personaLeft.personality}</span>{/if}
+					{#if personaLeft.signature}<span class="text-white/25 truncate font-mono">sig: {personaLeft.signature.split('\n')[0]}...</span>{/if}
+				</div>
+				<div class="flex flex-col gap-1.5">
+					<label class="text-xs text-white/60" for="tone-left">Tone <span class="text-white/30">optional</span></label>
+					<input id="tone-left" class="field text-sm" placeholder="e.g. casual, direct" bind:value={tones[personaLeft.id]}/>
+				</div>
+				<div class="flex flex-col gap-1.5">
+					<label class="text-xs text-white/60" for="details-left">Personal details <span class="text-white/30">optional</span></label>
+					<input id="details-left" class="field text-sm" placeholder="comma-separated" bind:value={personalDetails[personaLeft.id]}/>
+				</div>
+			{/if}
 		</div>
 
-		<!-- Picker -->
-		{#if selectedPersonas.length < 2}
-			<div class="flex gap-2 items-center">
-				<select class="field flex-1" bind:value={personaIdx}>
-					{#each $personas as persona, idx (persona.id)}
+		<!-- Right: Contact -->
+		<div class="surface p-5 flex flex-col gap-4">
+			<div class="section-label section-label--purple">Contact</div>
+			<select class="field" bind:value={personaIdxRight}>
+				<option value={-1} disabled>Select persona...</option>
+				{#each $personas as persona, idx (persona.id)}
+					{#if idx !== personaIdxLeft}
 						<option value={idx}>{persona.name} — {persona.company}</option>
-					{/each}
-				</select>
-				<button class="btn btn-primary btn-sm rounded-xl flex-shrink-0" on:click={addPersona}>Add</button>
-			</div>
-		{/if}
-
-		<!-- Selected personas -->
-		{#if selectedPersonas.length > 0}
-			<div class="flex flex-col gap-3">
-				{#each selectedPersonas as persona, pi (persona.id)}
-					<div class="surface-inset p-4 flex flex-col gap-3">
-						<div class="flex items-center justify-between">
-							<div class="flex items-center gap-2 min-w-0">
-								<span class="badge-cyan text-[10px] font-bold">{pi === 0 ? 'INBOX OWNER' : 'CONTACT'}</span>
-								<span class="text-sm font-semibold text-white truncate">{persona.name}</span>
-								<span class="text-xs text-white/50 truncate hidden sm:inline">{persona.jobTitle} @ {persona.company}</span>
-							</div>
-							<button
-								class="w-6 h-6 rounded-full flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all text-xs flex-shrink-0"
-								on:click={() => removePersona(persona.id)}
-								aria-label="Remove {persona.name}">
-								✕
-							</button>
-						</div>
-						<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-							<div class="flex flex-col gap-1.5">
-								<label class="text-xs text-white/60" for="tone-{persona.id}">
-									Tone <span class="text-white/30">optional</span>
-								</label>
-								<input
-									id="tone-{persona.id}"
-									class="field text-sm"
-									placeholder="e.g. casual, direct"
-									bind:value={tones[persona.id]}
-								/>
-							</div>
-							<div class="flex flex-col gap-1.5">
-								<label class="text-xs text-white/60" for="details-{persona.id}">
-									Personal details <span class="text-white/30">optional</span>
-								</label>
-								<input
-									id="details-{persona.id}"
-									class="field text-sm"
-									placeholder="comma-separated, e.g. birthday Oct 12, has a dog"
-									bind:value={personalDetails[persona.id]}
-								/>
-							</div>
-						</div>
-					</div>
+					{/if}
 				{/each}
-			</div>
-		{/if}
+			</select>
+			{#if personaRight}
+				<div class="surface-inset p-3 flex flex-col gap-1 text-xs">
+					<span class="text-white/70">{personaRight.jobTitle} @ {personaRight.company}</span>
+					<span class="text-white/45">{personaRight.email}</span>
+					{#if personaRight.personality}<span class="text-white/35 truncate" title={personaRight.personality}>{personaRight.personality}</span>{/if}
+					{#if personaRight.signature}<span class="text-white/25 truncate font-mono">sig: {personaRight.signature.split('\n')[0]}...</span>{/if}
+				</div>
+				<div class="flex flex-col gap-1.5">
+					<label class="text-xs text-white/60" for="tone-right">Tone <span class="text-white/30">optional</span></label>
+					<input id="tone-right" class="field text-sm" placeholder="e.g. professional but warm" bind:value={tones[personaRight.id]}/>
+				</div>
+				<div class="flex flex-col gap-1.5">
+					<label class="text-xs text-white/60" for="details-right">Personal details <span class="text-white/30">optional</span></label>
+					<input id="details-right" class="field text-sm" placeholder="comma-separated" bind:value={personalDetails[personaRight.id]}/>
+				</div>
+			{/if}
+		</div>
 	</div>
 
 	<!-- Relationship + Config -->

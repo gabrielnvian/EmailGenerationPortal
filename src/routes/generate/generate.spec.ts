@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('$env/static/public', () => ({
-	PUBLIC_GENERATE_URL: 'https://n8n.tail068f9.ts.net:4443/generate'
+	PUBLIC_GENERATE_URL: 'https://n8n.tail068f9.ts.net:10000/generate'
 }));
 
 import { generateEmails, personaToGeneratePersona, decodeEmailBody, getHeader, formatResponseTime, type GenerateRequest, type GmailMessage } from './generate';
@@ -160,7 +160,7 @@ describe('generateEmails', () => {
 		const fetchMock = mockFetch();
 		await generateEmails(baseRequest);
 		expect(fetchMock).toHaveBeenCalledWith(
-			'https://n8n.tail068f9.ts.net:4443/generate',
+			'https://n8n.tail068f9.ts.net:10000/generate',
 			expect.objectContaining({
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' }

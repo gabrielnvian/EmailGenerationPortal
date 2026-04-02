@@ -7,8 +7,10 @@ export class Persona {
 	public phone: string;
 	public email: string;
 	public supervisor: Persona | null;
+	public personality: string;
+	public signature: string;
 
-	constructor(id: number, name: string, jobTitle: string, company: string, field: string, phone: string, email: string, supervisor: Persona | null = null) {
+	constructor(id: number, name: string, jobTitle: string, company: string, field: string, phone: string, email: string, supervisor: Persona | null = null, personality: string = '', signature: string = '') {
 		this.id = id;
 		this.name = name;
 		this.jobTitle = jobTitle;
@@ -17,6 +19,8 @@ export class Persona {
 		this.phone = phone;
 		this.email = email;
 		this.supervisor = supervisor;
+		this.personality = personality;
+		this.signature = signature;
 	}
 
 	toJSON(): Record<string, unknown> {
@@ -28,7 +32,9 @@ export class Persona {
 			field: this.field,
 			phone: this.phone,
 			email: this.email,
-			supervisorId: this.supervisor?.id ?? null
+			supervisorId: this.supervisor?.id ?? null,
+			personality: this.personality,
+			signature: this.signature
 		};
 	}
 }

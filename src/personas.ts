@@ -12,6 +12,8 @@ type PersonaRow = {
 	phone: string;
 	email: string;
 	supervisor_id: number | null;
+	personality: string | null;
+	signature: string | null;
 };
 
 function rowsToPersonas(rows: PersonaRow[]): Persona[] {
@@ -19,7 +21,7 @@ function rowsToPersonas(rows: PersonaRow[]): Persona[] {
 
 	// Pass 1: create all personas without supervisors
 	for (const row of rows) {
-		map.set(row.id, new Persona(row.id, row.name, row.job_title, row.company, row.field, row.phone, row.email, null));
+		map.set(row.id, new Persona(row.id, row.name, row.job_title, row.company, row.field, row.phone, row.email, null, row.personality ?? '', row.signature ?? ''));
 	}
 
 	// Pass 2: assign supervisors

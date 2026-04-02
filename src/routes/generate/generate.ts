@@ -9,7 +9,9 @@ export type GeneratePersona = {
 	field?: string;
 	phone?: string;
 	tone?: string;
+	personality?: string;
 	personalDetails?: string[];
+	signature?: string;
 };
 
 export type MessageMetadata = {
@@ -102,7 +104,9 @@ export function personaToGeneratePersona(
 	if (persona.field) result.field = persona.field;
 	if (persona.phone) result.phone = persona.phone;
 	if (tone) result.tone = tone;
+	if (persona.personality) result.personality = persona.personality;
 	if (personalDetails?.length) result.personalDetails = personalDetails;
+	if (persona.signature) result.signature = persona.signature;
 	return result;
 }
 

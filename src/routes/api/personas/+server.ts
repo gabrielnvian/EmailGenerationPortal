@@ -33,6 +33,8 @@ type PersonaBody = {
 	email?: string;
 	supervisorId?: number | null;
 	isSelfSupervisor?: boolean;
+	personality?: string;
+	signature?: string;
 };
 
 function validateFields(body: PersonaBody, editingId?: number) {
@@ -44,6 +46,8 @@ function validateFields(body: PersonaBody, editingId?: number) {
 	const email = (body.email ?? '').trim();
 	const supervisorId = body.supervisorId ?? null;
 	const isSelfSupervisor = Boolean(body.isSelfSupervisor);
+	const personality = (body.personality ?? '').trim();
+	const signature = (body.signature ?? '').trim();
 
 	if (!name || !jobTitle || !company || !field || !email) {
 		return { error: 'All fields are required except phone.', status: 400 };
@@ -102,7 +106,7 @@ function validateFields(body: PersonaBody, editingId?: number) {
 	);
 
 	return {
-		data: { name, jobTitle, company, field, phone, email, supervisorId, isSelfSupervisor },
+		data: { name, jobTitle, company, field, phone, email, supervisorId, isSelfSupervisor, personality, signature },
 		warning: sameNameExists ? 'A persona with this same name already exists.' : null
 	};
 }

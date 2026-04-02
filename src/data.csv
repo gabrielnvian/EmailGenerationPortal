@@ -1,53 +1,139 @@
-Name,Job title,Company,Field,Phone,Email,Supervisor (row number)
-David Mayfield,Data Analyst,MacroHard,Software,9518925819,DavidM239@macrohard.com,3
-John Becker,CEO,MacroHard,Software,8582231234,JBecker004@macrohard.com,3
-Andrew Greene,Junior Software Engineer,MacroHard,Software,6196360476,agreene007@macrohard.com,3
-Sandra McCoy,Senior Software Engineer,MacroHard,Software,8583360996,SMcCoy2000@macrohard.com,3
-Brian Peterson ,Project Manager,MacroHard,Software,4834925971,bpeterson5832@macrohard.com,3
-Jordan Becker,Chief of Staff,MacroHard,Software,8582130342,jbecker005@macrohard.com,3
-Anna Smith,Chief Delivery Coordinator,Helios Forge Energy,Energy,7609900223,annasmith1@heliosforge.com,8
-Rebecca Ben David,Delivery Coordinator,Helios Forge Energy,Energy,7603343456,rebeccabdavid@heliosforge.com,8
-Robert George,Delivery Driver,Helios Forge Energy,Energy,6192563050,robertgeorge2@heliosforge.com,8
-Marina Rophaiel,CFO,Helios Forge Energy,Energy,2913467894,marinarophaiel@heliosforge.com,8
-Jordan Hale,Owner/Lead Technician,Northline Air,HVAC,7605843928,jordan.hale@northlineair.com,12
-Megan Ruiz,Operations Manager,Northline Air,HVAC,7609483827,megan.ruiz@northlineair.com,12
-Tyler Brooks,Senior HVAC Installer,Northline Air,HVAC,1424834027,tyler.brooks@northlineair.com,12
-Evan Cole ,HVAC Service Technician,Northline Air,HVAC,7609584736,evan.cole@northlineair.com,12
-Samantha Lee,Customer Support & Scheduling,Northline Air,HVAC,2914726384,samantha.lee@northlineair.com,12
-Hayden Forsyth,QA Department Manager,JetHead Development,Software,8756588201,hforsyth@jetheaddev.com,17
-Jack Lacsamana,Lead Test Engineer,JetHead Development,Software,8281101008,j.lac@jetheaddev.com,17
-Ernie Meyers,Database Test Engineer,JetHead Development,Software,8284667846,e.meyers@jetheaddev.com,17
-Horace Wilcox,Embedded Test Engineer,JetHead Development,Software,6195245562,hwilcox3@jetheaddev.com,17
-Michael Froelich,Web Test Engineer,JetHead Development,Software,7607198820,m.froelich@jetheaddev.com,17
-Barry Poldark,Lead Aerospace Engineer,Heavenspear Defense,Defense,6198896523,barry.poldark@heavenspeardef.com,22
-Rachel Wayans,Senior Electrical Engineer,Heavenspear Defense,Defense,7607652039,r.wayans@heavenspeardef.com,22
-Ryan Datter,Principal Software Engineer,Heavenspear Defense,Defense,8280984523,ryan.datter@heavenspeardef.com,22
-Missy Grubbs,Senior Computer Engineer,Heavenspear Defense,Defense,7609929940,missygrubbs01@heavenspeardef.com,22
-Alan Neumann,Principal Physics Engineer,Heavenspear Defense,Defense,2198828463,a.neumann@heavenspeardef.com,22
-Jake Evans,Lead Scientist,Ridge Biotechnologies,Biotechnologies,9203346446,j.evans@ridgebio.com,27
-Emily Carter,Senior Research Associate,Ridge Biotechnologies,Biotechnologies,9203346789,e.carter@ridgebio.com,27
-Daniel Moreno,Bioinformatics Scientist,Ridge Biotechnologies,Biotechnologies,9203346891,d.moreno@ridgebio.com,27
-Priya Nandakumar,Molecular Biology Specialist,Ridge Biotechnologies,Biotechnologies,9203347554,p.nandakumar@ridgebio.com,27
-Lucas Bennett,Laboratory Operations Scientist,Ridge Biotechnologies,Biotechnologies,9203347019,l.bennett@ridgebio.com,27
-Eleanor Vance,Director,Pinnacle Solutions,Sales & Marketing,5294264839,evance@pinnacleoutreach.com,32
-Marcus Chen,Senior Marketing Strategist,Pinnacle Solutions,Sales & Marketing,1429754925,mchen@pinnacleoutreach.com,32
-Simone Garcia,Lead Sales Development Rep,Pinnacle Solutions,Sales & Marketing,3894767745,sgarcia@pinnacleoutreach.com,32
-David Okafor,Sales Development Rep ,Pinnacle Solutions,Sales & Marketing,8819402843,dokafor@pinnacleoutreach.com,32
-Chloe Patel ,Marketing & Analytics Coordinator,Pinnacle Solutions,Sales & Marketing,3817484473,cpatel@pinnacleoutreach.com,32
-Axel Temms,Senior Site Engineer,Summit Vale Construction,Residential Development,9258876453,a.temms@summitvale.com,37
-Eric Lockhart,Construction Superintendent,Summit Vale Construction,Residential Development,7608904434,eric.lockhart@summitvale.com,37
-Terra Lovalace,Electrical Consultant,Summit Vale Construction,Residential Development,6197083931,t.lovelace@summitvale.com,37
-Robert Paulson,Accountant,Summit Vale Construction,Residential Development,9254352210,rpaul001@summitvale.com,37
-King Winger,Civil Engineer,Summit Vale Construction,Residential Development,4228445446,k.winger@summitvale.com,37
-Michael Turner,Quality Assurance Inspector,Summit Vale Construction,Residential Development,7608180909,micturn@summitvale.com,37
-Collin Weirs,Sculptor,Statues Inc.,Decoration,9257674434,collinweirs@statuesinc.com,43
-Adrian Comms,Sales Agent,Statues Inc.,Decoration,7608561025,a.comms@statuesinc.com,43
-Thea Bran,Painter,Statues Inc.,Decoration,6192003004,t.bran@statuesinc.com,43
-Jameson Creek,Lead Pickleball Coach,MYPadL,Sports,7604452746,j.creek@mypadl.com,46
-Merry Polish,Assistant Pickleball Coach,MYPadL,Sports,6195547835,merrypolish@mypadl.com,46
-Tyson Breeves,Pickleball Tutor,MYPadL,Sports,6198873336,tybree@mypadl.com,46
-Hardunka Chug,Pickleball Tutor,MYPadL,Sports,9256198191,chugster@mypadl.com,46
-Brittany Flowers,Pickleball Tutor,MYPadL,Sports,4422846607,b.flowers@mypadl.com,46
-George,James,Google,Software Development,8828883621,gjames@google.com,51
-Steve,Robin,Google,Software Development,8882045593,srobin@google.com,51
-r,rrw,awd,Software Development,,4@e.com,52
+Name,Job title,Company,Field,Phone,Email,Supervisor (row number),Personality,Signature
+David Mayfield,Data Analyst,MacroHard,Software,9518925819,DavidM239@macrohard.com,3,"Methodical and detail-oriented. Loves spreadsheets. Will email you a pivot table before you finish asking the question.","David Mayfield
+Data Analyst, MacroHard
+951-892-5819 | DavidM239@macrohard.com"
+John Becker,CEO,MacroHard,Software,8582231234,JBecker004@macrohard.com,3,"Big-picture thinker, impatient with details. Delegates aggressively. Replies in one-liners from his phone.","John Becker
+CEO, MacroHard
+858-223-1234 | jbecker004@macrohard.com"
+Andrew Greene,Junior Software Engineer,MacroHard,Software,6196360476,agreene007@macrohard.com,3,"Eager, asks a lot of questions. Over-explains things to prove he understands them. Still figuring out office politics.","Andrew Greene
+Software Engineer, MacroHard
+619-636-0476 | agreene007@macrohard.com"
+Sandra McCoy,Senior Software Engineer,MacroHard,Software,8583360996,SMcCoy2000@macrohard.com,3,"Dry humor, technically brilliant. Will push back on bad ideas politely but firmly. Mentors juniors naturally.","Sandra McCoy
+Senior Software Engineer, MacroHard
+858-336-0996 | SMcCoy2000@macrohard.com"
+Brian Peterson ,Project Manager,MacroHard,Software,4834925971,bpeterson5832@macrohard.com,3,"Organized to a fault. Loves Gantt charts and status updates. Gets anxious when things aren't tracked.","Brian Peterson
+Project Manager, MacroHard
+483-492-5971 | bpeterson5832@macrohard.com"
+Jordan Becker,Chief of Staff,MacroHard,Software,8582130342,jbecker005@macrohard.com,3,"Political operator, smooth communicator. Always cc's the right people. Protective of the CEO's time.","Jordan Becker
+Chief of Staff, MacroHard
+858-213-0342 | jbecker005@macrohard.com"
+Anna Smith,Chief Delivery Coordinator,Helios Forge Energy,Energy,7609900223,annasmith1@heliosforge.com,8,"Assertive and no-nonsense. Runs a tight ship. Will escalate without hesitation if deadlines slip.","Anna Smith
+Chief Delivery Coordinator
+Helios Forge Energy
+760-990-0223 | annasmith1@heliosforge.com"
+Rebecca Ben David,Delivery Coordinator,Helios Forge Energy,Energy,7603343456,rebeccabdavid@heliosforge.com,8,"Warm and collaborative. Good at de-escalating. Remembers everyone's birthdays.","Rebecca Ben David
+Delivery Coordinator, Helios Forge Energy
+760-334-3456 | rebeccabdavid@heliosforge.com"
+Robert George,Delivery Driver,Helios Forge Energy,Energy,6192563050,robertgeorge2@heliosforge.com,8,"Straightforward, blue-collar attitude. Doesn't sugarcoat. Prefers phone calls over emails.","Robert George
+Delivery Driver, Helios Forge Energy
+619-256-3050"
+Marina Rophaiel,CFO,Helios Forge Energy,Energy,2913467894,marinarophaiel@heliosforge.com,8,"Numbers-first mindset. Skeptical of anything that doesn't have an ROI attached. Formal in writing.","Marina Rophaiel
+Chief Financial Officer
+Helios Forge Energy
+291-346-7894 | marinarophaiel@heliosforge.com"
+Jordan Hale,Owner/Lead Technician,Northline Air,HVAC,7605843928,jordan.hale@northlineair.com,12,"Hands-on small business owner. Passionate about HVAC. Takes pride in quality work. Loyal to long-term clients.","Jordan Hale
+Owner & Lead Technician
+Northline Air | 760-584-3928
+jordan.hale@northlineair.com"
+Megan Ruiz,Operations Manager,Northline Air,HVAC,7609483827,megan.ruiz@northlineair.com,12,"Efficient multitasker. Keeps the business running. Can be blunt when scheduling gets tight.","Megan Ruiz
+Operations Manager, Northline Air
+760-948-3827 | megan.ruiz@northlineair.com"
+Tyler Brooks,Senior HVAC Installer,Northline Air,HVAC,1424834027,tyler.brooks@northlineair.com,12,"Quiet, reliable. Lets his work speak for itself. Doesn't love email but will respond if pressed.",""
+Evan Cole ,HVAC Service Technician,Northline Air,HVAC,7609584736,evan.cole@northlineair.com,12,"Friendly and talkative on job sites. New to the team, eager to prove himself.",""
+Samantha Lee,Customer Support & Scheduling,Northline Air,HVAC,2914726384,samantha.lee@northlineair.com,12,"Professional but warm. Great with customers. Smooths over complaints gracefully.","Samantha Lee
+Customer Support & Scheduling
+Northline Air | 291-472-6384
+samantha.lee@northlineair.com"
+Hayden Forsyth,QA Department Manager,JetHead Development,Software,8756588201,hforsyth@jetheaddev.com,17,"Perfectionist with high standards. Diplomatic but won't ship anything with known defects. Quotes testing principles.","Hayden Forsyth
+QA Department Manager
+JetHead Development
+875-658-8201 | hforsyth@jetheaddev.com"
+Jack Lacsamana,Lead Test Engineer,JetHead Development,Software,8281101008,j.lac@jetheaddev.com,17,"Pragmatic problem-solver. Good at triaging. Mentors the team with patience.","Jack Lacsamana
+Lead Test Engineer, JetHead Development
+828-110-1008 | j.lac@jetheaddev.com"
+Ernie Meyers,Database Test Engineer,JetHead Development,Software,8284667846,e.meyers@jetheaddev.com,17,"Quiet, deeply technical. Writes thorough bug reports. Prefers async communication.",""
+Horace Wilcox,Embedded Test Engineer,JetHead Development,Software,6195245562,hwilcox3@jetheaddev.com,17,"Old-school engineer. Grumpy about modern tooling. Knows the codebase better than anyone.","Horace Wilcox
+Embedded Test Engineer
+JetHead Development | 619-524-5562"
+Michael Froelich,Web Test Engineer,JetHead Development,Software,7607198820,m.froelich@jetheaddev.com,17,"Enthusiastic about automation. Always pitching new frameworks. Sometimes over-engineers solutions.",""
+Barry Poldark,Lead Aerospace Engineer,Heavenspear Defense,Defense,6198896523,barry.poldark@heavenspeardef.com,22,"Commanding presence. Expects precision. Will red-line a report for a misplaced decimal.","Barry Poldark
+Lead Aerospace Engineer
+Heavenspear Defense Systems
+619-889-6523 | barry.poldark@heavenspeardef.com
+ITAR WARNING: This email may contain export-controlled information."
+Rachel Wayans,Senior Electrical Engineer,Heavenspear Defense,Defense,7607652039,r.wayans@heavenspeardef.com,22,"Collaborative, always cross-referencing with other teams. Thorough documenter.","Rachel Wayans
+Senior Electrical Engineer
+Heavenspear Defense Systems
+760-765-2039 | r.wayans@heavenspeardef.com"
+Ryan Datter,Principal Software Engineer,Heavenspear Defense,Defense,8280984523,ryan.datter@heavenspeardef.com,22,"Quiet authority. Speaks rarely but everyone listens. Deeply security-conscious.","Ryan Datter
+Principal Software Engineer
+Heavenspear Defense Systems
+828-098-4523 | ryan.datter@heavenspeardef.com"
+Missy Grubbs,Senior Computer Engineer,Heavenspear Defense,Defense,7609929940,missygrubbs01@heavenspeardef.com,22,"Fast-paced, high energy. Juggles multiple classified projects. Drops acronyms constantly.",""
+Alan Neumann,Principal Physics Engineer,Heavenspear Defense,Defense,2198828463,a.neumann@heavenspeardef.com,22,"Academic tone, meticulous. Writes emails that read like research papers. Kind but pedantic.","Dr. Alan Neumann
+Principal Physics Engineer
+Heavenspear Defense Systems
+219-882-8463 | a.neumann@heavenspeardef.com"
+Jake Evans,Lead Scientist,Ridge Biotechnologies,Biotechnologies,9203346446,j.evans@ridgebio.com,27,"Visionary, sometimes scattered. Gets excited about results and forgets to update stakeholders.","Jake Evans, Ph.D.
+Lead Scientist
+Ridge Biotechnologies
+920-334-6446 | j.evans@ridgebio.com"
+Emily Carter,Senior Research Associate,Ridge Biotechnologies,Biotechnologies,9203346789,e.carter@ridgebio.com,27,"Meticulous note-taker. Catches errors others miss. Quietly competitive about publications.","Emily Carter
+Senior Research Associate
+Ridge Biotechnologies
+920-334-6789 | e.carter@ridgebio.com"
+Daniel Moreno,Bioinformatics Scientist,Ridge Biotechnologies,Biotechnologies,9203346891,d.moreno@ridgebio.com,27,"Data nerd. Speaks in code and statistics. Friendly but hard to follow for non-technical people.",""
+Priya Nandakumar,Molecular Biology Specialist,Ridge Biotechnologies,Biotechnologies,9203347554,p.nandakumar@ridgebio.com,27,"Patient teacher. Explains complex protocols clearly. Advocates for lab safety relentlessly.","Priya Nandakumar
+Molecular Biology Specialist
+Ridge Biotechnologies
+920-334-7554 | p.nandakumar@ridgebio.com"
+Lucas Bennett,Laboratory Operations Scientist,Ridge Biotechnologies,Biotechnologies,9203347019,l.bennett@ridgebio.com,27,"Logistics-minded. Keeps the lab supplied and running. Gets frustrated when people don't follow SOPs.",""
+Eleanor Vance,Director,Pinnacle Solutions,Sales & Marketing,5294264839,evance@pinnacleoutreach.com,32,"Strategic, polished. Every email is calculated. Drops client names to build credibility.","Eleanor Vance
+Director, Pinnacle Outreach Solutions
+529-426-4839 | evance@pinnacleoutreach.com
+www.pinnacleoutreach.com"
+Marcus Chen,Senior Marketing Strategist,Pinnacle Solutions,Sales & Marketing,1429754925,mchen@pinnacleoutreach.com,32,"Creative thinker, loves brainstorming. Sometimes over-promises on timelines. Upbeat tone.","Marcus Chen
+Senior Marketing Strategist
+Pinnacle Outreach Solutions
+142-975-4925 | mchen@pinnacleoutreach.com"
+Simone Garcia,Lead Sales Development Rep,Pinnacle Solutions,Sales & Marketing,3894767745,sgarcia@pinnacleoutreach.com,32,"Persistent closer. Follows up relentlessly. Friendly but always has an angle.","Simone Garcia
+Lead Sales Development Rep
+Pinnacle Outreach Solutions
+389-476-7745 | sgarcia@pinnacleoutreach.com"
+David Okafor,Sales Development Rep ,Pinnacle Solutions,Sales & Marketing,8819402843,dokafor@pinnacleoutreach.com,32,"Enthusiastic newcomer. Templates his emails a bit too obviously. Learning fast.",""
+Chloe Patel ,Marketing & Analytics Coordinator,Pinnacle Solutions,Sales & Marketing,3817484473,cpatel@pinnacleoutreach.com,32,"Analytical, quiet in meetings but sharp in writing. Backs up every claim with data.","Chloe Patel
+Marketing & Analytics Coordinator
+Pinnacle Outreach Solutions
+381-748-4473 | cpatel@pinnacleoutreach.com"
+Axel Temms,Senior Site Engineer,Summit Vale Construction,Residential Development,9258876453,a.temms@summitvale.com,37,"Gruff, practical. Doesn't waste words. Values punctuality and follow-through above all.","Axel Temms
+Senior Site Engineer
+Summit Vale Construction
+925-887-6453 | a.temms@summitvale.com"
+Eric Lockhart,Construction Superintendent,Summit Vale Construction,Residential Development,7608904434,eric.lockhart@summitvale.com,37,"Natural leader on-site. Protective of his crew. Escalates safety concerns immediately.","Eric Lockhart
+Construction Superintendent
+Summit Vale Construction
+760-890-4434 | eric.lockhart@summitvale.com"
+Terra Lovalace,Electrical Consultant,Summit Vale Construction,Residential Development,6197083931,t.lovelace@summitvale.com,37,"Precise, code-compliant. Gets irritated by shortcuts. Thorough but slow to respond.",""
+Robert Paulson,Accountant,Summit Vale Construction,Residential Development,9254352210,rpaul001@summitvale.com,37,"Dry, by-the-books. Sends invoices with passive-aggressive payment reminders. Secretly funny.","Robert Paulson
+Accountant, Summit Vale Construction
+925-435-2210 | rpaul001@summitvale.com"
+King Winger,Civil Engineer,Summit Vale Construction,Residential Development,4228445446,k.winger@summitvale.com,37,"Methodical planner. Thinks three steps ahead. Hates surprises on job sites.",""
+Michael Turner,Quality Assurance Inspector,Summit Vale Construction,Residential Development,7608180909,micturn@summitvale.com,37,"Thorough and uncompromising on inspections. Writes detailed deficiency reports. Fair but firm.","Michael Turner
+QA Inspector
+Summit Vale Construction
+760-818-0909 | micturn@summitvale.com"
+Collin Weirs,Sculptor,Statues Inc.,Decoration,9257674434,collinweirs@statuesinc.com,43,"Artistic temperament. Passionate about craftsmanship. Gets defensive about creative direction.","Collin Weirs
+Sculptor, Statues Inc.
+925-767-4434 | collinweirs@statuesinc.com"
+Adrian Comms,Sales Agent,Statues Inc.,Decoration,7608561025,a.comms@statuesinc.com,43,"Smooth talker. Can sell anything. Stretches delivery timelines to close deals.","Adrian Comms
+Sales, Statues Inc.
+760-856-1025 | a.comms@statuesinc.com"
+Thea Bran,Painter,Statues Inc.,Decoration,6192003004,t.bran@statuesinc.com,43,"Quiet artist. Communicates better through her work than words. Short emails.",""
+Jameson Creek,Lead Pickleball Coach,MYPadL,Sports,7604452746,j.creek@mypadl.com,46,"High-energy motivator. Uses sports metaphors for everything. Always positive.","Jameson Creek
+Lead Coach, MYPadL
+760-445-2746 | j.creek@mypadl.com
+""Game on!"""
+Merry Polish,Assistant Pickleball Coach,MYPadL,Sports,6195547835,merrypolish@mypadl.com,46,"Supportive, great with beginners. Overly enthusiastic in emails. Uses too many exclamation marks.",""
+Tyson Breeves,Pickleball Tutor,MYPadL,Sports,6198873336,tybree@mypadl.com,46,"Laid-back surfer vibe. Casual in all communication. Late to respond but always follows through.",""
+Hardunka Chug,Pickleball Tutor,MYPadL,Sports,9256198191,chugster@mypadl.com,46,"Competitive streak. Takes the sport seriously. Can be intense during lessons.",""
+Brittany Flowers,Pickleball Tutor,MYPadL,Sports,4422846607,b.flowers@mypadl.com,46,"Organized and professional. Runs the most structured sessions. Parents love her.",""

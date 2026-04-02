@@ -19,10 +19,18 @@ export function getDb(): Database.Database {
 				field         TEXT NOT NULL,
 				phone         TEXT NOT NULL DEFAULT '',
 				email         TEXT NOT NULL UNIQUE,
-				supervisor_id INTEGER REFERENCES personas(id) ON DELETE SET NULL
+				supervisor_id INTEGER REFERENCES personas(id) ON DELETE SET NULL,
+				personality   TEXT,
+				signature     TEXT
 			);
 			CREATE INDEX IF NOT EXISTS idx_personas_supervisor ON personas(supervisor_id);
 		`);
+
+		// Migrate existing tables that lack new columns
+		const cols = _db.pragma('table_info(personas)') as { name: string }[];
+		const colNames = new Set(cols.map(c => c.name));
+		if (!colNames.has('personality')) _db.exec('ALTER TABLE personas ADD COLUMN personality TEXT');
+		if (!colNames.has('signature')) _db.exec('ALTER TABLE personas ADD COLUMN signature TEXT');
 	}
 	return _db;
 }

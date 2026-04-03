@@ -3,9 +3,9 @@
 	import {base} from "$app/paths";
 	import {onMount} from "svelte";
 	import {
-		listGenerations,
-		getGenerationRaw,
 		type GenerationSummaryRow,
+		getGenerationRaw,
+		listGenerations,
 		type ViewType,
 	} from "../generations/generations";
 
@@ -26,15 +26,15 @@
 
 	function buildViewOptions(d: string): { value: string; label: string }[] {
 		const opts = [
-			{ value: '',         label: 'Random format' },
-			{ value: 'metadata', label: 'Metadata only' },
+			{value: '', label: 'Random format'},
+			{value: 'metadata', label: 'Metadata only'},
 		];
 		if (d === 'email') {
-			opts.push({ value: 'gmail',   label: 'Gmail API format' });
-			opts.push({ value: 'outlook', label: 'Outlook API format' });
+			opts.push({value: 'gmail', label: 'Gmail API format'});
+			opts.push({value: 'outlook', label: 'Outlook API format'});
 		}
 		if (d === 'calendar') {
-			opts.push({ value: 'gcal', label: 'Google Calendar format' });
+			opts.push({value: 'gcal', label: 'Google Calendar format'});
 		}
 		return opts;
 	}
@@ -55,7 +55,7 @@
 	}
 
 	onMount(async () => {
-		const result = await listGenerations({ limit: 200 });
+		const result = await listGenerations({limit: 200});
 		if (result.success) {
 			generations = result.data;
 		} else {
@@ -75,7 +75,8 @@
 		const result = await getGenerationRaw(selectedId, view);
 
 		if (result.success) {
-			rawJson = JSON.stringify(result.data, null, 2);
+			const payload = (result.data as Record<string, unknown>)?.data ?? result.data;
+			rawJson = JSON.stringify(payload, null, 2);
 		} else {
 			fetchError = result.error;
 		}
@@ -86,7 +87,9 @@
 		try {
 			await navigator.clipboard.writeText(rawJson);
 			copied = true;
-			setTimeout(() => { copied = false; }, 2000);
+			setTimeout(() => {
+				copied = false;
+			}, 2000);
 		} catch {
 			// ignore
 		}
@@ -96,7 +99,8 @@
 <div class="flex flex-col gap-8">
 	<!-- Header -->
 	<div class="flex flex-col gap-2 pt-4">
-		<button class="flex items-center gap-1.5 text-xs text-white/40 hover:text-white/70 transition-colors w-fit" on:click={() => goto(`${base}/`)}>
+		<button class="flex items-center gap-1.5 text-xs text-white/40 hover:text-white/70 transition-colors w-fit"
+		        on:click={() => goto(`${base}/`)}>
 			← Back
 		</button>
 		<h1 class="text-4xl font-black tracking-tight">API Viewer</h1>
@@ -122,7 +126,9 @@
 					<select id="gen-select" class="field" bind:value={selectedId}>
 						<option value={null}>Choose a generation...</option>
 						{#each generations as g (g.id)}
-							<option value={g.id}>#{g.id} · {g.persona_0_name} ↔ {g.persona_1_name} ({g.domain ?? 'email'})</option>
+							<option value={g.id}>#{g.id} · {g.persona_0_name} ↔ {g.persona_1_name}
+								({g.domain ?? 'email'})
+							</option>
 						{/each}
 					</select>
 				</div>
@@ -148,7 +154,7 @@
 
 			<div class="flex justify-end">
 				<button class="btn btn-primary btn-sm rounded-xl" on:click={handleFetch}
-					disabled={selectedId === null || fetching}>
+				        disabled={selectedId === null || fetching}>
 					{fetching ? 'Fetching...' : 'Fetch JSON'}
 				</button>
 			</div>
@@ -178,7 +184,7 @@
 				</button>
 			</div>
 			<pre class="surface-inset p-4 text-xs text-white/80 overflow-auto max-h-[600px] leading-relaxed"
-				style="white-space:pre-wrap; word-break:break-word; font-family:monospace;"
+			     style="white-space:pre-wrap; word-break:break-word; font-family:monospace;"
 			>{rawJson}</pre>
 		</div>
 	{/if}

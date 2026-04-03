@@ -1,0 +1,21 @@
+# Copy to /etc/systemd/system/generator.service
+# Then: systemctl daemon-reload && systemctl enable generator.service
+
+[Unit]
+Description=Structured Data Generator API
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/root/EmailGenerationPortal
+ExecStart=/usr/bin/node structured-data-generator/dist/server.js
+Environment=PORT=3005
+Environment=DB_PATH=./structured-data-generator/data/generations.db
+Environment=OLLAMA_URL=http://red.tail068f9.ts.net:11434/api/generate
+Environment=OLLAMA_FALLBACK_URL=https://ollama.tail068f9.ts.net/api/generate
+Environment=MODEL=qwen3:8b
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

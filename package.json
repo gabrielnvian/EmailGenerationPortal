@@ -14,7 +14,11 @@
 		"test:unit": "vitest",
 		"test": "npm run test:unit -- --run && npm run test:e2e",
 		"test:e2e": "playwright test",
-		"seed": "tsx scripts/seed.ts"
+		"seed": "tsx scripts/seed.ts",
+		"generator:build": "cd structured-data-generator && npx tsc",
+		"generator:start": "node structured-data-generator/dist/server.js",
+		"generator:dev": "cd structured-data-generator && npx tsc --watch",
+		"build:all": "pnpm run build && pnpm run generator:build"
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.57.0",

@@ -1,0 +1,21 @@
+{
+  "name": "structured-data-generator",
+  "version": "3.0.0",
+  "description": "Generates synthetic Gmail API relationship timelines for training Feather AI",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "generate": "node dist/index.js",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.8.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.0",
+    "@types/node": "^22.0.0",
+    "@types/better-sqlite3": "^7.6.0"
+  }
+}

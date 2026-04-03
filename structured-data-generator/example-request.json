@@ -1,0 +1,27 @@
+{
+  "personas": [
+    {
+      "name": "Collin Weirs",
+      "email": "collin@statuesinc.com",
+      "jobTitle": "Sculptor",
+      "company": "Statues Inc.",
+      "field": "Decoration",
+      "phone": "925-767-4434",
+      "tone": "casual, direct",
+      "personalDetails": ["birthday Oct 12", "has a dog named Marble"]
+    },
+    {
+      "name": "Samantha Lee",
+      "email": "samantha@northlineair.com",
+      "jobTitle": "Support Lead",
+      "company": "Northline Air",
+      "field": "HVAC",
+      "phone": "291-472-6384",
+      "tone": "professional but warm",
+      "personalDetails": ["birthday March 15", "training for a half-marathon"]
+    }
+  ],
+  "relationship": "new client, first HVAC project together",
+  "threadCount": 2,
+  "timespan": "1 month"
+}

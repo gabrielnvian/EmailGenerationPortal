@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('$env/static/public', () => ({
-	PUBLIC_GENERATE_URL: 'https://example.com/generate'
+	PUBLIC_GENERATE_URL: 'http://localhost:3005/generate'
 }));
 
 import { listGenerations, getGeneration, deleteGeneration, getGenerationRaw } from './generations';
@@ -25,7 +25,7 @@ describe('listGenerations', () => {
 	it('fetches GET /generations with no params', async () => {
 		const fetchMock = mockFetch({ success: true, total: 0, data: [] });
 		await listGenerations();
-		expect(fetchMock).toHaveBeenCalledWith('https://example.com/generations');
+		expect(fetchMock).toHaveBeenCalledWith('http://localhost:3005/generations');
 	});
 
 	it('appends query params', async () => {
@@ -70,7 +70,7 @@ describe('getGeneration', () => {
 	it('fetches GET /generations/:id', async () => {
 		const fetchMock = mockFetch({ success: true, data: { id: 7 } });
 		await getGeneration(7);
-		expect(fetchMock).toHaveBeenCalledWith('https://example.com/generations/7');
+		expect(fetchMock).toHaveBeenCalledWith('http://localhost:3005/generations/7');
 	});
 
 	it('returns detail on success', async () => {
@@ -93,7 +93,7 @@ describe('deleteGeneration', () => {
 	it('sends DELETE /generations/:id', async () => {
 		const fetchMock = mockFetch({ success: true });
 		await deleteGeneration(5);
-		expect(fetchMock).toHaveBeenCalledWith('https://example.com/generations/5', { method: 'DELETE' });
+		expect(fetchMock).toHaveBeenCalledWith('http://localhost:3005/generations/5', { method: 'DELETE' });
 	});
 
 	it('returns success on ok response', async () => {
@@ -114,13 +114,13 @@ describe('getGenerationRaw', () => {
 	it('fetches GET /generations/:id with no view param', async () => {
 		const fetchMock = mockFetch({ data: { timeline: [] } });
 		await getGenerationRaw(7);
-		expect(fetchMock).toHaveBeenCalledWith('https://example.com/generations/7');
+		expect(fetchMock).toHaveBeenCalledWith('http://localhost:3005/generations/7');
 	});
 
 	it('fetches GET /generations/:id?view=gmail', async () => {
 		const fetchMock = mockFetch({ data: { messages: [] } });
 		await getGenerationRaw(7, 'gmail');
-		expect(fetchMock).toHaveBeenCalledWith('https://example.com/generations/7?view=gmail');
+		expect(fetchMock).toHaveBeenCalledWith('http://localhost:3005/generations/7?view=gmail');
 	});
 
 	it('returns raw data on success', async () => {

@@ -22,6 +22,12 @@ Thumbs.db
 
 # Database
 data/
+structured-data-generator/data/*.db
+structured-data-generator/data/*.db-wal
+structured-data-generator/data/*.db-shm
+
+# Backend build output
+structured-data-generator/dist/
 
 # Vite
 vite.config.js.timestamp-*

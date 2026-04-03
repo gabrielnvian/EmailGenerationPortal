@@ -1,2 +1,6 @@
+packages:
+  - '.'
+  - 'structured-data-generator'
 onlyBuiltDependencies:
   - esbuild
+  - better-sqlite3

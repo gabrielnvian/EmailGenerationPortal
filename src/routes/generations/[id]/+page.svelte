@@ -56,6 +56,8 @@
 		...detail.response,
 		format: detail.response.format ?? (detail as Record<string, unknown>).format ?? 'gmail'
 	} as GenerateData : undefined;
+
+	$: requestPersonas = (detail?.request?.personas ?? []) as import('../../generate/generate').GeneratePersona[];
 </script>
 
 <div class="flex flex-col gap-8">
@@ -125,7 +127,7 @@
 
 		<!-- Timeline -->
 		{#if timelineData}
-			<TimelineView data={timelineData}/>
+			<TimelineView data={timelineData} personas={requestPersonas}/>
 		{/if}
 
 		<!-- Actions -->

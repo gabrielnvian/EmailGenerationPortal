@@ -1,14 +1,26 @@
 <script lang="ts">
-	import {formatResponseTime, extractMessageInfo, isSentByOwner, isUnread, type GenerateData, type OutputFormat, type TimelineMessage, type GCalEvent} from "./generate/generate";
+	import {formatResponseTime, extractMessageInfo, isSentByOwner, isUnread, type GenerateData, type GeneratePersona, type OutputFormat, type TimelineMessage, type GCalEvent} from "./generate/generate";
 
 	function asGcal(output: Record<string, unknown>): GCalEvent {
 		return output as GCalEvent;
 	}
 
 	export let data: GenerateData;
+	export let personas: GeneratePersona[] = [];
 
 	$: format = data.format ?? 'gmail';
 	$: isEmail = format === 'gmail' || format === 'outlook';
+
+	// Sentiment color mapping — granular sentiment → positive/neutral/negative
+	const POSITIVE_SENTIMENTS = new Set(['warm-professional', 'friendly', 'enthusiastic', 'grateful', 'celebratory']);
+	const NEGATIVE_SENTIMENTS = new Set(['concerned', 'frustrated']);
+	// Everything else (neutral, cold, apologetic) → neutral
+
+	function sentimentColor(sentiment: string): { bg: string; color: string } {
+		if (POSITIVE_SENTIMENTS.has(sentiment)) return { bg: 'rgba(0,249,207,0.12)', color: '#00f9cf' };
+		if (NEGATIVE_SENTIMENTS.has(sentiment)) return { bg: 'rgba(255,107,107,0.12)', color: '#ff8080' };
+		return { bg: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.55)' };
+	}
 
 	const SENTIMENT_CLASS_COLORS: Record<string, { bg: string; color: string }> = {
 		positive: { bg: 'rgba(0,249,207,0.12)', color: '#00f9cf' },
@@ -69,7 +81,61 @@
 			}
 		}
 	}
+
+	// Persona modal
+	let modalPersona: GeneratePersona | null = null;
+
+	function findPersona(nameOrEmail: string): GeneratePersona | null {
+		if (!personas.length || !nameOrEmail) return null;
+		const lower = nameOrEmail.toLowerCase();
+		return personas.find(p =>
+			lower.includes(p.email.toLowerCase()) || lower.includes(p.name.toLowerCase())
+		) ?? null;
+	}
+
+	function handlePersonaClick(field: string) {
+		const p = findPersona(field);
+		if (p) modalPersona = p;
+	}
 </script>
+
+<!-- Persona detail modal -->
+{#if modalPersona}
+	<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
+	<div
+		class="fixed inset-0 z-50 flex items-center justify-center px-4"
+		style="background:rgba(4,6,16,0.65); backdrop-filter:blur(20px);"
+		on:click|self={() => modalPersona = null}
+	>
+		<div class="surface p-6 w-full max-w-md flex flex-col gap-4">
+			<div class="flex items-center justify-between">
+				<h3 class="text-lg font-bold text-white">{modalPersona.name}</h3>
+				<button class="text-white/40 hover:text-white transition text-sm" on:click={() => modalPersona = null}>✕</button>
+			</div>
+			<div class="flex flex-col gap-2 text-sm">
+				<div><span class="text-white/40">Title:</span> <span class="text-white/80">{modalPersona.jobTitle}</span></div>
+				<div><span class="text-white/40">Company:</span> <span class="text-white/80">{modalPersona.company}</span></div>
+				<div><span class="text-white/40">Email:</span> <span class="text-white/80">{modalPersona.email}</span></div>
+				{#if modalPersona.field}<div><span class="text-white/40">Field:</span> <span class="text-white/80">{modalPersona.field}</span></div>{/if}
+				{#if modalPersona.phone}<div><span class="text-white/40">Phone:</span> <span class="text-white/80">{modalPersona.phone}</span></div>{/if}
+				{#if modalPersona.tone}<div><span class="text-white/40">Tone:</span> <span class="text-white/80">{modalPersona.tone}</span></div>{/if}
+				{#if modalPersona.personality}<div><span class="text-white/40">Personality:</span> <span class="text-white/80">{modalPersona.personality}</span></div>{/if}
+				{#if modalPersona.personalDetails?.length}
+					<div class="flex flex-wrap gap-1.5 mt-1">
+						{#each modalPersona.personalDetails as detail}
+							<span class="badge-purple">{detail}</span>
+						{/each}
+					</div>
+				{/if}
+				{#if modalPersona.signature}
+					<div class="mt-2 surface-inset p-3">
+						<pre class="text-xs text-white/60 font-mono whitespace-pre-wrap">{modalPersona.signature}</pre>
+					</div>
+				{/if}
+			</div>
+		</div>
+	</div>
+{/if}
 
 <!-- Summary -->
 {#if data.summary.arcDescription || data.summary.totalMessages}
@@ -88,8 +154,10 @@
 		{#if data.summary.sentimentProgression.length > 0}
 			<div class="flex flex-wrap gap-1.5">
 				{#each data.summary.sentimentProgression as sentiment, i}
+					{@const sc = sentimentColor(sentiment)}
 					<button
-						class="badge-cyan cursor-pointer hover:brightness-125 transition-all"
+						class="text-xs px-2 py-0.5 rounded-full cursor-pointer hover:brightness-125 transition-all"
+						style="background:{sc.bg}; color:{sc.color};"
 						on:click={() => scrollToSentiment(sentiment, i)}
 						title="Jump to message"
 					>{sentiment}</button>
@@ -157,11 +225,11 @@
 				{@const sent = isSentByOwner(msg.output, format)}
 				{@const unreadMsg = !sent && isUnread(msg.output, format)}
 				{@const scColors = SENTIMENT_CLASS_COLORS[msg.metadata.sentimentClass ?? ''] ?? null}
+				{@const sc = sentimentColor(msg.metadata.sentiment)}
 				<details id="msg-{ti}-{mi}" class="surface-inset overflow-hidden" style="transition: box-shadow 0.3s ease;">
 					<summary class="px-4 py-3 cursor-pointer text-sm hover:text-white transition-colors flex items-center gap-2 flex-wrap {unreadMsg ? 'text-white font-semibold' : 'text-white/70'}">
 						<span class="text-white/80 font-medium">#{mi + 1}</span>
 
-						<!-- Sent / Received / Unread (email only) -->
 						{#if isEmail}
 							{#if sent}
 								<span class="text-xs px-1.5 py-0.5 rounded font-medium" style="background:#00f9cf14; color:#00f9cf;">Sent</span>
@@ -179,7 +247,7 @@
 							<span class="text-xs px-1.5 py-0.5 rounded" style="background:{scColors.bg}; color:{scColors.color};">{msg.metadata.sentimentClass}</span>
 						{/if}
 
-						<span class="badge-cyan">{msg.metadata.sentiment}</span>
+						<span class="text-xs px-2 py-0.5 rounded-full" style="background:{sc.bg}; color:{sc.color};">{msg.metadata.sentiment}</span>
 						<span class="badge-purple">{msg.metadata.relationshipStage}</span>
 
 						{#if msg.metadata.urgency !== 'low'}
@@ -200,11 +268,28 @@
 						<!-- Headers -->
 						<div class="px-4 py-3 flex flex-col gap-1 text-xs border-b border-[#222336]">
 							{#if isEmail}
-								{#if info.from}<div><span class="text-white/40">From:</span> <span class="text-white/70">{info.from}</span></div>{/if}
-								{#if info.to}<div><span class="text-white/40">To:</span> <span class="text-white/70">{info.to}</span></div>{/if}
+								{#if info.from}
+									<div>
+										<span class="text-white/40">From:</span>
+										{#if personas.length}
+											<button class="text-white/70 hover:text-white underline decoration-white/20 hover:decoration-white/50 transition" on:click={() => handlePersonaClick(info.from)}>{info.from}</button>
+										{:else}
+											<span class="text-white/70">{info.from}</span>
+										{/if}
+									</div>
+								{/if}
+								{#if info.to}
+									<div>
+										<span class="text-white/40">To:</span>
+										{#if personas.length}
+											<button class="text-white/70 hover:text-white underline decoration-white/20 hover:decoration-white/50 transition" on:click={() => handlePersonaClick(info.to)}>{info.to}</button>
+										{:else}
+											<span class="text-white/70">{info.to}</span>
+										{/if}
+									</div>
+								{/if}
 								{#if info.date}<div><span class="text-white/40">Date:</span> <span class="text-white/70">{info.date}</span></div>{/if}
 							{:else}
-								<!-- Calendar event -->
 								{@const evt = asGcal(msg.output)}
 								{#if info.date}<div><span class="text-white/40">Start:</span> <span class="text-white/70">{info.date}</span></div>{/if}
 								{#if evt.end?.dateTime}<div><span class="text-white/40">End:</span> <span class="text-white/70">{evt.end.dateTime}</span></div>{/if}

@@ -2,7 +2,7 @@
 	import {goto} from "$app/navigation";
 	import {base} from '$app/paths';
 	import {personas} from "../../personas";
-	import {generateEmails, personaToGeneratePersona, fetchFormats, type GenerateData, type GenerateResult, type OutputFormat} from "./generate";
+	import {generateEmails, personaToGeneratePersona, fetchFormats, type GenerateData, type GenerateResult, type OutputFormat, type GeneratePersona} from "./generate";
 	import {onMount} from "svelte";
 	import type {Persona} from "../../personas.model";
 	import TimelineView from "../TimelineView.svelte";
@@ -37,6 +37,7 @@
 	// --- Status ---
 	type Status = { type: 'idle' } | { type: 'loading' } | { type: 'success'; data: GenerateData; id?: number } | { type: 'error'; message: string };
 	let status: Status = { type: 'idle' };
+	let lastPersonas: GeneratePersona[] = [];
 
 	async function handleGenerate() {
 		status = { type: 'loading' };
@@ -50,6 +51,7 @@
 			);
 		});
 
+		lastPersonas = personaObjects;
 		const result: GenerateResult = await generateEmails({
 			personas: personaObjects,
 			relationship,
@@ -238,6 +240,6 @@
 				<a href="{base}/generations/{status.id}/" class="text-xs font-medium" style="color:#00f9cf;">View full page →</a>
 			</div>
 		{/if}
-		<TimelineView data={status.data}/>
+		<TimelineView data={status.data} personas={lastPersonas}/>
 	{/if}
 </div>

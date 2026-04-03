@@ -1,20 +1,15 @@
 <script lang="ts">
-	import {formatResponseTime, extractMessageInfo, isSentByOwner, isUnread, type GenerateData, type GeneratePersona, type OutputFormat, type TimelineMessage, type GCalEvent} from "./generate/generate";
-
-	function asGcal(output: Record<string, unknown>): GCalEvent {
-		return output as GCalEvent;
-	}
+	import {formatResponseTime, isEmailCanonical, type GenerateData, type GeneratePersona, type TimelineMessage, type EmailCanonical, type CalendarCanonical} from "./generate/generate";
 
 	export let data: GenerateData;
 	export let personas: GeneratePersona[] = [];
 
-	$: format = data.format ?? 'gmail';
-	$: isEmail = format === 'gmail' || format === 'outlook';
+	$: domain = data.domain ?? 'email';
+	$: isEmail = domain === 'email';
 
 	// Sentiment color mapping — granular sentiment → positive/neutral/negative
 	const POSITIVE_SENTIMENTS = new Set(['warm-professional', 'friendly', 'enthusiastic', 'grateful', 'celebratory']);
 	const NEGATIVE_SENTIMENTS = new Set(['concerned', 'frustrated']);
-	// Everything else (neutral, cold, apologetic) → neutral
 
 	function sentimentColor(sentiment: string): { bg: string; color: string } {
 		if (POSITIVE_SENTIMENTS.has(sentiment)) return { bg: 'rgba(0,249,207,0.12)', color: '#00f9cf' };
@@ -28,17 +23,8 @@
 		negative: { bg: 'rgba(255,107,107,0.12)', color: '#ff8080' },
 	};
 
-	const TREND_ARROWS: Record<string, string> = {
-		improving: '↗',
-		stable: '→',
-		declining: '↘',
-	};
-
-	const FORMAT_LABELS: Record<string, string> = {
-		gmail: 'Gmail',
-		outlook: 'Outlook',
-		gcal: 'Google Calendar',
-	};
+	const TREND_ARROWS: Record<string, string> = { improving: '↗', stable: '→', declining: '↘' };
+	const DOMAIN_LABELS: Record<string, string> = { email: 'Email', calendar: 'Calendar' };
 
 	// Flat messages for distributions and scroll targeting
 	type FlatMsg = { ti: number; mi: number; msg: TimelineMessage; elId: string };
@@ -142,7 +128,7 @@
 	<div class="surface p-5 flex flex-col gap-3">
 		<div class="flex items-center gap-2">
 			<div class="section-label section-label--purple">Summary</div>
-			<span class="badge-blue ml-auto">{FORMAT_LABELS[format] ?? format}</span>
+			<span class="badge-blue ml-auto">{DOMAIN_LABELS[domain] ?? domain}</span>
 		</div>
 		{#if data.summary.arcDescription}
 			<p class="text-sm text-white/80">{data.summary.arcDescription}</p>
@@ -197,7 +183,6 @@
 {#each data.timeline as group, ti}
 	{@const scoring = group.relationshipScoring}
 	<div class="surface p-5 flex flex-col gap-3">
-		<!-- Group header -->
 		<div class="flex items-center gap-2 flex-wrap">
 			<div class="section-label section-label--cyan">{isEmail ? 'Thread' : 'Event'} {ti + 1}</div>
 			<span class="text-sm text-white/60 ml-1 truncate">{group.title}</span>
@@ -218,30 +203,16 @@
 			</div>
 		{/if}
 
-		<!-- Messages -->
 		<div class="flex flex-col gap-2">
 			{#each group.messages as msg, mi}
-				{@const info = extractMessageInfo(msg.output, format)}
-				{@const sent = isSentByOwner(msg.output, format)}
-				{@const unreadMsg = !sent && isUnread(msg.output, format)}
+				{@const c = msg.canonical}
+				{@const email = isEmailCanonical(c) ? c : null}
+				{@const cal = !email ? c as CalendarCanonical : null}
 				{@const scColors = SENTIMENT_CLASS_COLORS[msg.metadata.sentimentClass ?? ''] ?? null}
 				{@const sc = sentimentColor(msg.metadata.sentiment)}
 				<details id="msg-{ti}-{mi}" class="surface-inset overflow-hidden" style="transition: box-shadow 0.3s ease;">
-					<summary class="px-4 py-3 cursor-pointer text-sm hover:text-white transition-colors flex items-center gap-2 flex-wrap {unreadMsg ? 'text-white font-semibold' : 'text-white/70'}">
+					<summary class="px-4 py-3 cursor-pointer text-sm text-white/70 hover:text-white transition-colors flex items-center gap-2 flex-wrap">
 						<span class="text-white/80 font-medium">#{mi + 1}</span>
-
-						{#if isEmail}
-							{#if sent}
-								<span class="text-xs px-1.5 py-0.5 rounded font-medium" style="background:#00f9cf14; color:#00f9cf;">Sent</span>
-							{:else if unreadMsg}
-								<span class="text-xs px-1.5 py-0.5 rounded font-medium flex items-center gap-1" style="background:#8c45ff20; color:#b88aff;">
-									<span class="w-1.5 h-1.5 rounded-full inline-block" style="background:#b88aff;"></span>
-									Unread
-								</span>
-							{:else}
-								<span class="text-xs px-1.5 py-0.5 rounded font-medium" style="background:#8c45ff14; color:#b88aff;">Received</span>
-							{/if}
-						{/if}
 
 						{#if scColors}
 							<span class="text-xs px-1.5 py-0.5 rounded" style="background:{scColors.bg}; color:{scColors.color};">{msg.metadata.sentimentClass}</span>
@@ -255,9 +226,7 @@
 						{/if}
 
 						{#if msg.metadata.businessValue != null}
-							<span class="text-[10px] px-1.5 py-0.5 rounded font-mono" style="background:#29b0ff14; color:#5cc4ff;">
-								bv {msg.metadata.businessValue.toFixed(2)}
-							</span>
+							<span class="text-[10px] px-1.5 py-0.5 rounded font-mono" style="background:#29b0ff14; color:#5cc4ff;">bv {msg.metadata.businessValue.toFixed(2)}</span>
 						{/if}
 
 						{#if msg.metadata.category}
@@ -267,37 +236,37 @@
 					<div class="flex flex-col border-t border-[#222336]">
 						<!-- Headers -->
 						<div class="px-4 py-3 flex flex-col gap-1 text-xs border-b border-[#222336]">
-							{#if isEmail}
-								{#if info.from}
-									<div>
-										<span class="text-white/40">From:</span>
-										{#if personas.length}
-											<button class="text-white/70 hover:text-white underline decoration-white/20 hover:decoration-white/50 transition" on:click={() => handlePersonaClick(info.from)}>{info.from}</button>
-										{:else}
-											<span class="text-white/70">{info.from}</span>
-										{/if}
-									</div>
-								{/if}
-								{#if info.to}
-									<div>
-										<span class="text-white/40">To:</span>
-										{#if personas.length}
-											<button class="text-white/70 hover:text-white underline decoration-white/20 hover:decoration-white/50 transition" on:click={() => handlePersonaClick(info.to)}>{info.to}</button>
-										{:else}
-											<span class="text-white/70">{info.to}</span>
-										{/if}
-									</div>
-								{/if}
-								{#if info.date}<div><span class="text-white/40">Date:</span> <span class="text-white/70">{info.date}</span></div>{/if}
-							{:else}
-								{@const evt = asGcal(msg.output)}
-								{#if info.date}<div><span class="text-white/40">Start:</span> <span class="text-white/70">{info.date}</span></div>{/if}
-								{#if evt.end?.dateTime}<div><span class="text-white/40">End:</span> <span class="text-white/70">{evt.end.dateTime}</span></div>{/if}
-								{#if evt.location}<div><span class="text-white/40">Location:</span> <span class="text-white/70">{evt.location}</span></div>{/if}
-								{#if info.to}<div><span class="text-white/40">Attendees:</span> <span class="text-white/70">{info.to}</span></div>{/if}
-								{#if evt.conferenceData?.entryPoints?.[0]?.uri}
-									<div><span class="text-white/40">Video:</span> <span class="text-white/70">{evt.conferenceData.entryPoints[0].uri}</span></div>
-								{/if}
+							{#if email}
+								<div>
+									<span class="text-white/40">From:</span>
+									{#if personas.length}
+										<button class="text-white/70 hover:text-white underline decoration-white/20 hover:decoration-white/50 transition" on:click={() => handlePersonaClick(email.fromEmail)}>{email.fromName} &lt;{email.fromEmail}&gt;</button>
+									{:else}
+										<span class="text-white/70">{email.fromName} &lt;{email.fromEmail}&gt;</span>
+									{/if}
+								</div>
+								<div>
+									<span class="text-white/40">To:</span>
+									{#if personas.length}
+										<button class="text-white/70 hover:text-white underline decoration-white/20 hover:decoration-white/50 transition" on:click={() => handlePersonaClick(email.toEmail)}>{email.toName} &lt;{email.toEmail}&gt;</button>
+									{:else}
+										<span class="text-white/70">{email.toName} &lt;{email.toEmail}&gt;</span>
+									{/if}
+								</div>
+								<div><span class="text-white/40">Subject:</span> <span class="text-white/70">{email.subject}</span></div>
+								<div><span class="text-white/40">Date:</span> <span class="text-white/70">{email.date}</span></div>
+							{:else if cal}
+								<div><span class="text-white/40">Event:</span> <span class="text-white/70">{cal.summary}</span></div>
+								<div><span class="text-white/40">Date:</span> <span class="text-white/70">{cal.date}</span></div>
+								{#if cal.location}<div><span class="text-white/40">Location:</span> <span class="text-white/70">{cal.location}</span></div>{/if}
+								<div>
+									<span class="text-white/40">Organizer:</span>
+									{#if personas.length}
+										<button class="text-white/70 hover:text-white underline decoration-white/20 hover:decoration-white/50 transition" on:click={() => handlePersonaClick(cal.organizerEmail)}>{cal.organizerName}</button>
+									{:else}
+										<span class="text-white/70">{cal.organizerName}</span>
+									{/if}
+								</div>
 							{/if}
 							{#if msg.metadata.responseTimeMinutes != null}
 								<div style="color:#29b0ff;">replied in {formatResponseTime(msg.metadata.responseTimeMinutes)}</div>
@@ -306,7 +275,7 @@
 
 						<!-- Body -->
 						<div class="px-4 py-3 text-sm text-white/75 whitespace-pre-wrap leading-relaxed">
-							{info.body}
+							{email ? email.body : cal?.description ?? ''}
 						</div>
 
 						<!-- Metadata tags -->

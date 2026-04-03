@@ -4,7 +4,7 @@ vi.mock('$env/static/public', () => ({
 	PUBLIC_GENERATE_URL: 'https://example.com/generate'
 }));
 
-import { listGenerations, getGeneration, deleteGeneration } from './generations';
+import { listGenerations, getGeneration, deleteGeneration, getGenerationRaw } from './generations';
 
 beforeEach(() => {
 	vi.restoreAllMocks();
@@ -107,5 +107,44 @@ describe('deleteGeneration', () => {
 		const result = await deleteGeneration(999);
 		expect(result.success).toBe(false);
 		if (!result.success) expect(result.error).toContain('404');
+	});
+});
+
+describe('getGenerationRaw', () => {
+	it('fetches GET /generations/:id with no view param', async () => {
+		const fetchMock = mockFetch({ data: { timeline: [] } });
+		await getGenerationRaw(7);
+		expect(fetchMock).toHaveBeenCalledWith('https://example.com/generations/7');
+	});
+
+	it('fetches GET /generations/:id?view=gmail', async () => {
+		const fetchMock = mockFetch({ data: { messages: [] } });
+		await getGenerationRaw(7, 'gmail');
+		expect(fetchMock).toHaveBeenCalledWith('https://example.com/generations/7?view=gmail');
+	});
+
+	it('returns raw data on success', async () => {
+		const payload = { data: { timeline: [] }, wrapped: {} };
+		mockFetch(payload);
+		const result = await getGenerationRaw(3);
+		expect(result.success).toBe(true);
+		if (result.success) expect(result.data).toEqual(payload);
+	});
+
+	it('returns error text on non-ok response', async () => {
+		vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+			ok: false, status: 400, statusText: 'Bad Request',
+			text: () => Promise.resolve('gmail view is not available for calendar domain'),
+		}));
+		const result = await getGenerationRaw(5, 'gmail');
+		expect(result.success).toBe(false);
+		if (!result.success) expect(result.error).toContain('gmail view is not available');
+	});
+
+	it('returns error on network failure', async () => {
+		vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));
+		const result = await getGenerationRaw(1);
+		expect(result.success).toBe(false);
+		if (!result.success) expect(result.error).toBe('offline');
 	});
 });

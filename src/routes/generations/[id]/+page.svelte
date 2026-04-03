@@ -54,7 +54,7 @@
 
 	$: timelineData = detail?.response ? {
 		...detail.response,
-		format: detail.response.format ?? (detail as Record<string, unknown>).format ?? 'gmail'
+		domain: detail.response.domain ?? (detail as Record<string, unknown>).domain ?? 'email'
 	} as GenerateData : undefined;
 
 	$: requestPersonas = (detail?.request?.personas ?? []) as import('../../generate/generate').GeneratePersona[];
@@ -69,7 +69,7 @@
 		<div class="flex items-center gap-3">
 			<h1 class="text-4xl font-black tracking-tight">Generation #{id}</h1>
 			{#if detail}
-				<span class="badge-blue">{detail.format ?? 'gmail'}</span>
+				<span class="badge-blue">{detail.domain ?? 'email'}</span>
 			{/if}
 		</div>
 		<div class="divider-glow"></div>

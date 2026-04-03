@@ -6,7 +6,7 @@
 	let query = "";
 	let personaFilter = "";
 	let sentimentFilter = "";
-	let formatFilter = "";
+	let domainFilter = "";
 	let rows: GenerationSummaryRow[] = [];
 	let total = 0;
 	let offset = 0;
@@ -30,7 +30,7 @@
 		if (query.trim()) params.q = query.trim();
 		if (personaFilter.trim()) params.persona = personaFilter.trim();
 		if (sentimentFilter.trim()) params.sentiment = sentimentFilter.trim();
-		if (formatFilter) params.format = formatFilter;
+		if (domainFilter) params.domain = domainFilter;
 
 		const result = await listGenerations(params);
 		if (result.success) {
@@ -111,11 +111,10 @@
 				bind:value={sentimentFilter}
 				on:keydown={(e) => e.key === 'Enter' && search()}
 			/>
-			<select class="field text-sm" bind:value={formatFilter} on:change={search}>
-				<option value="">All formats</option>
-				<option value="gmail">Gmail</option>
-				<option value="outlook">Outlook</option>
-				<option value="gcal">Google Calendar</option>
+			<select class="field text-sm" bind:value={domainFilter} on:change={search}>
+				<option value="">All domains</option>
+				<option value="email">Email</option>
+				<option value="calendar">Calendar</option>
 			</select>
 		</div>
 	</div>
@@ -141,7 +140,7 @@
 					<div class="flex items-center justify-between gap-4">
 						<div class="flex items-center gap-3 min-w-0">
 							<span class="text-xs text-white/30 font-mono">#{row.id}</span>
-							<span class="badge-blue">{row.format ?? 'gmail'}</span>
+							<span class="badge-blue">{row.domain ?? 'email'}</span>
 							<span class="text-sm font-semibold text-white truncate">{row.persona_0_name}</span>
 							<span class="text-xs text-white/30">↔</span>
 							<span class="text-sm font-semibold text-white truncate">{row.persona_1_name}</span>

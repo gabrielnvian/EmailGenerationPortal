@@ -2,7 +2,7 @@
 	import {goto} from "$app/navigation";
 	import {base} from '$app/paths';
 	import {personas} from "../../personas";
-	import {generateEmails, personaToGeneratePersona, fetchFormats, type GenerateData, type GenerateResult, type OutputFormat, type GeneratePersona} from "./generate";
+	import {generate, personaToGeneratePersona, fetchDomains, type GenerateData, type GenerateResult, type Domain, type GeneratePersona} from "./generate";
 	import {onMount} from "svelte";
 	import type {Persona} from "../../personas.model";
 	import TimelineView from "../TimelineView.svelte";
@@ -17,11 +17,11 @@
 	$: personaRight = personaIdxRight >= 0 ? $personas[personaIdxRight] ?? null : null;
 	$: selectedPersonas = [personaLeft, personaRight].filter((p): p is Persona => p !== null);
 
-	// --- Format ---
-	let availableFormats: OutputFormat[] = ['gmail'];
-	let selectedFormat: OutputFormat = 'gmail';
+	// --- Domain ---
+	let availableDomains: Domain[] = ['email'];
+	let selectedDomain: Domain = 'email';
 	onMount(async () => {
-		availableFormats = await fetchFormats();
+		availableDomains = await fetchDomains();
 	});
 
 	// --- Generation fields ---
@@ -52,13 +52,13 @@
 		});
 
 		lastPersonas = personaObjects;
-		const result: GenerateResult = await generateEmails({
+		const result: GenerateResult = await generate({
 			personas: personaObjects,
 			relationship,
 			arc: arc.trim() || undefined,
 			threadCount,
 			timespan: timespan.trim() || undefined,
-			format: selectedFormat,
+			domain: selectedDomain,
 		});
 
 		if (result.success) {
@@ -72,7 +72,7 @@
 				sentimentProgression: d?.summary?.sentimentProgression ?? [],
 				arcDescription: d?.summary?.arcDescription ?? '',
 			};
-			status = { type: 'success', data: { format: d?.format ?? selectedFormat, timeline, summary }, id: result.id };
+			status = { type: 'success', data: { domain: d?.domain ?? selectedDomain, timeline, summary }, id: result.id };
 		} else {
 			status = { type: 'error', message: result.error };
 		}
@@ -178,15 +178,15 @@
 
 		<div class="grid grid-cols-3 gap-4">
 			<div class="flex flex-col gap-1.5">
-				<label class="text-xs text-white/70 font-medium" for="format-select">Format</label>
-				<select id="format-select" class="field" bind:value={selectedFormat}>
-					{#each availableFormats as fmt}
-						<option value={fmt}>{fmt === 'gmail' ? 'Gmail' : fmt === 'outlook' ? 'Outlook' : fmt === 'gcal' ? 'Google Calendar' : fmt}</option>
+				<label class="text-xs text-white/70 font-medium" for="domain-select">Domain</label>
+				<select id="domain-select" class="field" bind:value={selectedDomain}>
+					{#each availableDomains as d}
+						<option value={d}>{d === 'email' ? 'Email' : d === 'calendar' ? 'Calendar' : d}</option>
 					{/each}
 				</select>
 			</div>
 			<div class="flex flex-col gap-1.5">
-				<label class="text-xs text-white/70 font-medium" for="thread-count-input">{selectedFormat === 'gcal' ? 'Event count' : 'Thread count'}</label>
+				<label class="text-xs text-white/70 font-medium" for="thread-count-input">{selectedDomain === 'calendar' ? 'Event count' : 'Thread count'}</label>
 				<input id="thread-count-input" class="field" bind:value={threadCount} type="number" min="1" max="20"/>
 			</div>
 			<div class="flex flex-col gap-1.5">
@@ -213,7 +213,7 @@
 			</div>
 		{:else if status.type === 'success'}
 			<div class="alert-success">
-				Generated {status.data.summary.totalMessages} {status.data.format === 'gcal' ? 'event' : 'message'}{status.data.summary.totalMessages === 1 ? '' : 's'} across {status.data.timeline.length} {status.data.format === 'gcal' ? 'event' : 'thread'}{status.data.timeline.length === 1 ? '' : 's'}
+				Generated {status.data.summary.totalMessages} {status.data.domain === 'calendar' ? 'event' : 'message'}{status.data.summary.totalMessages === 1 ? '' : 's'} across {status.data.timeline.length} {status.data.domain === 'calendar' ? 'event' : 'thread'}{status.data.timeline.length === 1 ? '' : 's'}
 			</div>
 		{:else if status.type === 'error'}
 			<div class="alert-error">{status.message}</div>

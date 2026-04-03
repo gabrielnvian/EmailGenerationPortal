@@ -1,5 +1,5 @@
 import {PUBLIC_GENERATE_URL} from '$env/static/public';
-import type {GenerateData, OutputFormat} from '../generate/generate';
+import type {GenerateData, Domain} from '../generate/generate';
 
 /** Derive the API base from the generate URL (strip /generate suffix). */
 const API_BASE = PUBLIC_GENERATE_URL.replace(/\/generate\/?$/, '');
@@ -9,7 +9,7 @@ const API_BASE = PUBLIC_GENERATE_URL.replace(/\/generate\/?$/, '');
 export type GenerationSummaryRow = {
 	id: number;
 	created_at: string;
-	format: OutputFormat;
+	domain: Domain;
 	persona_0_name: string;
 	persona_0_email: string;
 	persona_1_name: string;
@@ -25,14 +25,13 @@ export type GenerationSummaryRow = {
 export type GenerationDetail = GenerationSummaryRow & {
 	request: Record<string, unknown>;
 	response: GenerateData;
-	format: OutputFormat;
 };
 
 export type ListParams = {
 	q?: string;
 	persona?: string;
 	sentiment?: string;
-	format?: string;
+	domain?: string;
 	limit?: number;
 	offset?: number;
 };
@@ -57,7 +56,7 @@ export async function listGenerations(params: ListParams = {}): Promise<ListResu
 		if (params.q) query.set('q', params.q);
 		if (params.persona) query.set('persona', params.persona);
 		if (params.sentiment) query.set('sentiment', params.sentiment);
-		if (params.format) query.set('format', params.format);
+		if (params.domain) query.set('domain', params.domain);
 		if (params.limit !== undefined) query.set('limit', String(params.limit));
 		if (params.offset !== undefined) query.set('offset', String(params.offset));
 
@@ -83,6 +82,27 @@ export async function getGeneration(id: number): Promise<DetailResult> {
 		}
 		const json = await res.json();
 		return {success: true, data: json.data};
+	} catch (e) {
+		return {success: false, error: e instanceof Error ? e.message : 'Unknown error'};
+	}
+}
+
+export type ViewType = 'metadata' | 'gmail' | 'outlook' | 'gcal' | 'format';
+
+type RawViewResult =
+	{ success: true; data: unknown } |
+	{ success: false; error: string };
+
+export async function getGenerationRaw(id: number, view?: ViewType): Promise<RawViewResult> {
+	try {
+		const query = view ? `?view=${view}` : '';
+		const res = await fetch(`${API_BASE}/generations/${id}${query}`);
+		if (!res.ok) {
+			const body = await res.text();
+			return {success: false, error: body || `Server error: ${res.status} ${res.statusText}`};
+		}
+		const json = await res.json();
+		return {success: true, data: json};
 	} catch (e) {
 		return {success: false, error: e instanceof Error ? e.message : 'Unknown error'};
 	}

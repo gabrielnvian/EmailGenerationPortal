@@ -1,7 +1,7 @@
 import {Persona} from "../../personas.model";
 import {PUBLIC_GENERATE_URL} from '$env/static/public';
 
-export type OutputFormat = 'gmail' | 'outlook' | 'gcal';
+export type Domain = 'email' | 'calendar';
 
 export type GeneratePersona = {
 	name: string;
@@ -35,54 +35,31 @@ export type RelationshipScoring = {
 	daysSinceLastContact: number;
 };
 
-export type GmailHeader = {
-	name: string;
-	value: string;
-};
-
-export type GmailMessage = {
-	id: string;
-	threadId: string;
-	labelIds: string[];
-	snippet: string;
-	payload: {
-		headers: GmailHeader[];
-		body: {
-			size: number;
-			data: string;
-		};
-		[key: string]: unknown;
-	};
-	[key: string]: unknown;
-};
-
-export type OutlookMessage = {
-	id: string;
-	conversationId: string;
+/** Canonical email message — plain text, no format-specific encoding. */
+export type EmailCanonical = {
+	from: string;
+	to: string;
+	fromName: string;
+	fromEmail: string;
+	toName: string;
+	toEmail: string;
 	subject: string;
-	importance: string;
-	isRead: boolean;
-	from: { emailAddress: { name: string; address: string } };
-	toRecipients: { emailAddress: { name: string; address: string } }[];
-	body: { contentType: string; content: string };
-	receivedDateTime: string;
-	[key: string]: unknown;
+	body: string;
+	date: string;
 };
 
-export type GCalEvent = {
-	id: string;
+/** Canonical calendar event. */
+export type CalendarCanonical = {
 	summary: string;
 	description: string;
-	start: { dateTime: string };
-	end: { dateTime: string };
-	attendees?: { email: string; displayName?: string; responseStatus?: string }[];
 	location?: string;
-	conferenceData?: { entryPoints?: { uri: string; entryPointType: string }[] };
-	[key: string]: unknown;
+	organizerEmail: string;
+	organizerName: string;
+	date: string;
 };
 
 export type TimelineMessage = {
-	output: GmailMessage | OutlookMessage | GCalEvent | Record<string, unknown>;
+	canonical: EmailCanonical | CalendarCanonical;
 	metadata: MessageMetadata;
 };
 
@@ -101,7 +78,7 @@ export type GenerateSummary = {
 };
 
 export type GenerateData = {
-	format: OutputFormat;
+	domain: Domain;
 	timeline: TimelineGroup[];
 	summary: GenerateSummary;
 };
@@ -116,7 +93,7 @@ export type GenerateRequest = {
 	arc?: string;
 	threadCount?: number;
 	timespan?: string;
-	format?: OutputFormat;
+	domain?: Domain;
 };
 
 export function personaToGeneratePersona(
@@ -139,16 +116,6 @@ export function personaToGeneratePersona(
 	return result;
 }
 
-/** Decode base64url email body to plain text. */
-export function decodeEmailBody(data: string): string {
-	try {
-		const base64 = data.replace(/-/g, '+').replace(/_/g, '/');
-		return atob(base64);
-	} catch {
-		return data;
-	}
-}
-
 /** Format minutes into a human-readable duration like "4h 2m" or "3d 12h". */
 export function formatResponseTime(minutes: number): string {
 	if (minutes < 60) return `${minutes}m`;
@@ -162,95 +129,32 @@ export function formatResponseTime(minutes: number): string {
 	return h > 0 ? `${d}d ${h}h` : `${d}d`;
 }
 
-/** Extract a header value from a Gmail message. */
-export function getGmailHeader(msg: GmailMessage, name: string): string {
-	return msg.payload?.headers?.find(
-		(h: GmailHeader) => h.name.toLowerCase() === name.toLowerCase()
-	)?.value ?? '';
+/** Check if a canonical object is an email (has subject + from fields). */
+export function isEmailCanonical(c: EmailCanonical | CalendarCanonical): c is EmailCanonical {
+	return 'subject' in c && 'from' in c;
 }
 
-/** Extract sender/recipient/date from any format output. */
-export function extractMessageInfo(output: Record<string, unknown>, format: OutputFormat): { from: string; to: string; date: string; subject: string; body: string } {
-	if (format === 'gmail') {
-		const gmail = output as GmailMessage;
-		return {
-			from: getGmailHeader(gmail, 'From'),
-			to: getGmailHeader(gmail, 'To'),
-			date: getGmailHeader(gmail, 'Date'),
-			subject: getGmailHeader(gmail, 'Subject'),
-			body: decodeEmailBody(gmail.payload?.body?.data ?? ''),
-		};
-	}
-	if (format === 'outlook') {
-		const msg = output as OutlookMessage;
-		const fromAddr = msg.from?.emailAddress;
-		const toAddr = msg.toRecipients?.[0]?.emailAddress;
-		return {
-			from: fromAddr ? `${fromAddr.name} <${fromAddr.address}>` : '',
-			to: toAddr ? `${toAddr.name} <${toAddr.address}>` : '',
-			date: msg.receivedDateTime ?? '',
-			subject: msg.subject ?? '',
-			body: msg.body?.content ?? '',
-		};
-	}
-	// gcal
-	const evt = output as GCalEvent;
-	const attendeeList = evt.attendees?.map(a => a.displayName || a.email).join(', ') ?? '';
-	return {
-		from: '',
-		to: attendeeList,
-		date: evt.start?.dateTime ?? '',
-		subject: evt.summary ?? '',
-		body: evt.description ?? '',
-	};
-}
-
-/** Check if message was sent by the inbox owner (persona 0). */
-export function isSentByOwner(output: Record<string, unknown>, format: OutputFormat): boolean {
-	if (format === 'gmail') {
-		return (output as GmailMessage).labelIds?.includes('SENT') ?? false;
-	}
-	if (format === 'outlook') {
-		// Outlook sent items have a sentDateTime but no receivedDateTime, or folder is sentItems
-		// For now, check if it looks like a sent item based on available fields
-		return (output as Record<string, unknown>).parentFolderId === 'sentitems' ||
-			(output as Record<string, unknown>).isDraft === false && !(output as OutlookMessage).isRead;
-	}
-	return false; // gcal doesn't have sent/received concept
-}
-
-/** Check if a received message is unread. */
-export function isUnread(output: Record<string, unknown>, format: OutputFormat): boolean {
-	if (format === 'gmail') {
-		return (output as GmailMessage).labelIds?.includes('UNREAD') ?? false;
-	}
-	if (format === 'outlook') {
-		return !(output as OutlookMessage).isRead;
-	}
-	return false;
-}
-
-/** Fetch available output formats from the backend. */
-export async function fetchFormats(): Promise<OutputFormat[]> {
+/** Fetch available domains from the backend. */
+export async function fetchDomains(): Promise<Domain[]> {
 	try {
 		const baseUrl = PUBLIC_GENERATE_URL.replace(/\/generate\/?$/, '');
 		const res = await fetch(`${baseUrl}/formats`);
-		if (!res.ok) return ['gmail'];
+		if (!res.ok) return ['email'];
 		const json = await res.json();
-		return json.data ?? ['gmail'];
+		return json.domains ?? ['email'];
 	} catch {
-		return ['gmail'];
+		return ['email'];
 	}
 }
 
-export async function generateEmails(request: GenerateRequest): Promise<GenerateResult> {
+export async function generate(request: GenerateRequest): Promise<GenerateResult> {
 	try {
 		const body: Record<string, unknown> = {
 			personas: request.personas,
 			relationship: request.relationship,
 		};
 
-		if (request.format && request.format !== 'gmail') body.format = request.format;
+		if (request.domain && request.domain !== 'email') body.domain = request.domain;
 		if (request.arc) body.arc = request.arc;
 		if (request.threadCount !== undefined) body.threadCount = request.threadCount;
 		if (request.timespan) body.timespan = request.timespan;
@@ -267,8 +171,7 @@ export async function generateEmails(request: GenerateRequest): Promise<Generate
 
 		const json = await response.json();
 		const data = json.data ?? json;
-		// Ensure format is set
-		if (!data.format) data.format = 'gmail';
+		if (!data.domain) data.domain = 'email';
 		return {success: true, data, id: json.id};
 	} catch (e) {
 		return {success: false, error: e instanceof Error ? e.message : 'Unknown error'};

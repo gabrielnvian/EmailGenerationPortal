@@ -12,7 +12,7 @@ import type {
   SearchResult,
 } from './types.js';
 
-const DB_PATH = process.env.DB_PATH || path.join(__dirname, '..', 'data', 'generations.db');
+const DB_PATH = process.env.DB_PATH || new URL('../data/generations.db', import.meta.url).pathname;
 
 let db: DatabaseType | null = null;
 

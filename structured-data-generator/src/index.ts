@@ -1,5 +1,4 @@
 import fs from 'node:fs';
-import path from 'node:path';
 import { planTimeline } from './planner.js';
 import { generateGroup } from './item-generator.js';
 import { getProvidersForDomain, getDomainAdapterByType } from './providers/registry.js';
@@ -104,8 +103,8 @@ async function generateTimeline({
 }
 
 // CLI usage: node dist/index.js [path-to-request.json]
-if (require.main === module) {
-  const inputPath = process.argv[2] || path.join(__dirname, '..', 'example-request.json');
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const inputPath = process.argv[2] || new URL('../example-request.json', import.meta.url).pathname;
   const request: GenerateRequest = JSON.parse(fs.readFileSync(inputPath, 'utf8'));
 
   generateTimeline(request)

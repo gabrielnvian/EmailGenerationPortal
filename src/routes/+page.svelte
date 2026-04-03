@@ -121,6 +121,9 @@
 
 	<!-- Actions -->
 	<div class="flex items-center justify-end gap-3">
+		<a class="btn-glass" href="/EmailGenerationPortal/viewer/">
+			API Viewer
+		</a>
 		<a class="btn-glass" href="/EmailGenerationPortal/test-report/">
 			See test coverage
 		</a>

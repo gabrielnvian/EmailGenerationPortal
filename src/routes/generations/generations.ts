@@ -87,7 +87,7 @@ export async function getGeneration(id: number): Promise<DetailResult> {
 	}
 }
 
-export type ViewType = 'metadata' | 'gmail' | 'outlook' | 'gcal' | 'format';
+export type ViewType = 'metadata' | 'gmail' | 'outlook' | 'gcal';
 
 type RawViewResult =
 	{ success: true; data: unknown } |

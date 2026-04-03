@@ -1,3 +1,4 @@
+#!/bin/bash
 # Deployment script triggered by GitHub push via webhook.
 # Webhook: /usr/webhook, port 9000, systemd service "webhook", config at /etc/webhook.conf
 

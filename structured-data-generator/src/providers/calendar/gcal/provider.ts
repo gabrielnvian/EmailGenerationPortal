@@ -1,4 +1,4 @@
-import type { FormatProvider, WrapContext } from '../../types.js';
+import type { FormatProvider, WrapContext, CrossThreadContext } from '../../types.js';
 import type { Persona, ItemPlan, GroupPlan } from '../../../types.js';
 import { gcalSchema } from './schema.js';
 import { buildGCalCodeValues } from './generators.js';
@@ -29,6 +29,8 @@ export class GCalFormatProvider implements FormatProvider {
     plan: ItemPlan,
     _groupPlan: GroupPlan,
     relationship: string,
+    _previousMessages?: { senderName: string; body: string }[],
+    _crossThreadContext?: CrossThreadContext,
   ): string {
     let prompt = `Calendar event organized by ${sender.name} (${sender.jobTitle}, ${sender.company}).`;
     prompt += `\nAttendee: ${recipient.name} (${recipient.jobTitle}, ${recipient.company}).`;

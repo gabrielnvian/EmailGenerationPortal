@@ -18,6 +18,14 @@ export interface WrapContext {
   previousItemIds: string[];
 }
 
+// ── Cross-thread context ──
+
+export interface CrossThreadContext {
+  otherPersonName: string;
+  prevThreadMessages: { senderName: string; body: string }[];
+  completedTitles: string[];
+}
+
 // ── FormatProvider ──
 
 export interface FormatProvider {
@@ -33,6 +41,8 @@ export interface FormatProvider {
     plan: ItemPlan,
     groupPlan: GroupPlan,
     relationship: string,
+    previousMessages?: { senderName: string; body: string }[],
+    crossThreadContext?: CrossThreadContext,
   ): string;
 
   parseAiOutput(

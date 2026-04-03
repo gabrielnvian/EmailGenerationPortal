@@ -79,7 +79,7 @@ function streamGenerate(params: OllamaParams, url: string): Promise<OllamaRespon
       prompt,
       context,
       stream: true,
-      options: { temperature, ...(stop ? { stop } : {}) },
+      options: { temperature, num_ctx: 8192, ...(stop ? { stop } : {}) },
     });
 
     const parsed = new URL(url);

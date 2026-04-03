@@ -1,5 +1,5 @@
 import { generate } from './ollama.js';
-import type { FormatProvider } from './providers/types.js';
+import type { FormatProvider, CrossThreadContext } from './providers/types.js';
 import type { Persona, GroupPlan, ItemGroup, GeneratedItem } from './types.js';
 
 interface PiiPattern {
@@ -47,10 +47,13 @@ async function generateGroup(
   personas: Persona[],
   relationship: string,
   provider: FormatProvider,
+  prevThreadTail?: { senderName: string; body: string }[],
+  completedTitles?: string[],
 ): Promise<ItemGroup> {
   const groupId = randomHex(16);
   const messages: GeneratedItem[] = [];
   let context: number[] = [];
+  const previousMessages: { senderName: string; body: string }[] = [];
 
   for (let i = 0; i < groupPlan.messages.length; i++) {
     const plan = groupPlan.messages[i];
@@ -59,7 +62,16 @@ async function generateGroup(
 
     process.stderr.write(`    message ${i + 1}/${groupPlan.messages.length} (${sender.name})...`);
 
-    const prompt = provider.buildContentPrompt(sender, recipient, plan, groupPlan, relationship);
+    const crossCtx: CrossThreadContext | undefined =
+      i < 2 && ((prevThreadTail?.length ?? 0) > 0 || (completedTitles?.length ?? 0) > 0)
+        ? {
+            otherPersonName: recipient.name,
+            prevThreadMessages: prevThreadTail ?? [],
+            completedTitles: completedTitles ?? [],
+          }
+        : undefined;
+
+    const prompt = provider.buildContentPrompt(sender, recipient, plan, groupPlan, relationship, previousMessages.slice(-2), crossCtx);
 
     const stopSequences = provider.getStopSequences();
     const result = await generate({
@@ -74,6 +86,7 @@ async function generateGroup(
 
     const allowedPhones = personas.map((p) => p.phone).filter(Boolean) as string[];
     const sanitized = normalizeUnicode(sanitizePII(result.response, allowedPhones));
+    previousMessages.push({ senderName: sender.name, body: sanitized });
 
     process.stderr.write(` ${plan.sentiment}\n`);
 

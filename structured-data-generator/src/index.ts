@@ -35,10 +35,13 @@ async function generateTimeline({
   // Phase 2: Generate each group sequentially
   process.stderr.write('[2/2] Generating groups...\n');
   const timeline: ItemGroup[] = [];
+  let prevThreadTail: { senderName: string; body: string }[] = [];
+  const completedTitles: string[] = [];
+
   for (let i = 0; i < plan.groups.length; i++) {
     const groupPlan = plan.groups[i];
     process.stderr.write(`  group ${i + 1}/${plan.groups.length}: "${groupPlan.title}"\n`);
-    const group = await generateGroup(groupPlan, personas, relationship, provider);
+    const group = await generateGroup(groupPlan, personas, relationship, provider, prevThreadTail, [...completedTitles]);
 
     // Per-group relationship scoring dimensions
     const groupDates = groupPlan.messages.map((m) => new Date(m.date));
@@ -73,6 +76,11 @@ async function generateTimeline({
         (Date.now() - lastDate.getTime()) / (1000 * 60 * 60 * 24),
       ),
     };
+
+    prevThreadTail = group.messages
+      .map((m) => ({ senderName: (m.canonical as Record<string, string>).fromName, body: (m.canonical as Record<string, string>).body }))
+      .slice(-2);
+    completedTitles.push(groupPlan.title);
 
     timeline.push(group);
   }

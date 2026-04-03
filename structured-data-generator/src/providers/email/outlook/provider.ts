@@ -1,4 +1,4 @@
-import type { FormatProvider, WrapContext } from '../../types.js';
+import type { FormatProvider, WrapContext, CrossThreadContext } from '../../types.js';
 import type { Persona, ItemPlan, GroupPlan } from '../../../types.js';
 import { outlookSchema } from './schema.js';
 import { buildOutlookCodeValues } from './generators.js';
@@ -38,6 +38,8 @@ export class OutlookFormatProvider implements FormatProvider {
     plan: ItemPlan,
     groupPlan: GroupPlan,
     relationship: string,
+    previousMessages?: { senderName: string; body: string }[],
+    crossThreadContext?: CrossThreadContext,
   ): string {
     let prompt = `You are ${sender.name}, ${sender.jobTitle} at ${sender.company}.`;
     if (sender.tone) prompt += ` Your tone: ${sender.tone}.`;
@@ -50,7 +52,30 @@ export class OutlookFormatProvider implements FormatProvider {
       prompt += `\nNaturally mention: ${plan.personalDetailsMentioned.join(', ')}`;
     }
 
-    prompt += '\n\nWrite the email.';
+    if (crossThreadContext?.completedTitles.length) {
+      prompt += '\n\nPrevious conversation topics with this person:';
+      for (const title of crossThreadContext.completedTitles) {
+        prompt += `\n- ${title}`;
+      }
+    }
+
+    if (crossThreadContext?.prevThreadMessages.length) {
+      prompt += `\n\nLast conversation with ${crossThreadContext.otherPersonName}:`;
+      for (const msg of crossThreadContext.prevThreadMessages) {
+        prompt += `\n\n[${msg.senderName}]:\n${msg.body}`;
+      }
+    }
+
+    if (previousMessages && previousMessages.length > 0) {
+      prompt += '\n\nPrevious messages in this thread:';
+      for (const msg of previousMessages) {
+        prompt += `\n\n[${msg.senderName}]:\n${msg.body}`;
+      }
+      prompt += '\n\nWrite your reply. Do NOT repeat or paraphrase lines from the previous messages.';
+    } else {
+      prompt += '\n\nWrite the email.';
+    }
+
     return prompt;
   }
 

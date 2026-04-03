@@ -20,6 +20,7 @@ export type GenerationSummaryRow = {
 	message_count: number;
 	timespan_days: number;
 	duration_ms: number;
+	model: string | null;
 };
 
 export type GenerationDetail = GenerationSummaryRow & {

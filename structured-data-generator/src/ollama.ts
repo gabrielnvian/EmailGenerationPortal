@@ -12,7 +12,7 @@ interface OllamaChunk {
 
 const PRIMARY_URL = process.env.OLLAMA_URL || 'http://red.tail068f9.ts.net:11434/api/generate';
 const FALLBACK_URL = process.env.OLLAMA_FALLBACK_URL || 'https://ollama.tail068f9.ts.net/api/generate';
-const MODEL = process.env.MODEL || 'qwen3:8b';
+const MODEL = process.env.DEFAULT_MODEL || 'qwen3:8b';
 const RETRY_DELAY = 2_000;
 const HEALTH_CHECK_INTERVAL = 60_000;
 
@@ -70,11 +70,11 @@ class OllamaError extends Error {
 }
 
 function streamGenerate(params: OllamaParams, url: string): Promise<OllamaResponse> {
-  const { system, prompt, context = [], temperature = 0.9, stop } = params;
+  const { system, prompt, context = [], temperature = 0.9, stop, model } = params;
 
   return new Promise<OllamaResponse>((resolve, reject) => {
     const payload = JSON.stringify({
-      model: MODEL,
+      model: model || MODEL,
       system,
       prompt,
       context,

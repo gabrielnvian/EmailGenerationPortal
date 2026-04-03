@@ -13,7 +13,7 @@ Environment=PORT=3005
 Environment=DB_PATH=./structured-data-generator/data/generations.db
 Environment=OLLAMA_URL=http://red.tail068f9.ts.net:11434/api/generate
 Environment=OLLAMA_FALLBACK_URL=https://ollama.tail068f9.ts.net/api/generate
-Environment=MODEL=qwen3:8b
+Environment=DEFAULT_MODEL=qwen3:8b
 Restart=on-failure
 RestartSec=5
 

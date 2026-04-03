@@ -118,6 +118,7 @@ export class EmailDomainAdapter implements DomainAdapter {
     itemsPerGroup: number[],
     completedTitles?: string[],
     lastMessageBody?: string,
+    model?: string,
   ): Promise<string> {
     const startIdx = groupBoundaries[groupIndex];
     const endIdx = startIdx + itemsPerGroup[groupIndex];
@@ -144,6 +145,7 @@ Generate a subject line for thread ${groupIndex + 1} of ${groupCount}.`;
       system: 'Generate a realistic business email subject line. Output ONLY the subject line. No quotes, no prefix, no explanation.',
       prompt,
       temperature: 1.0,
+      ...(model ? { model } : {}),
     });
 
     const subject = response.replace(/^["']|["']$/g, '').replace(/^(Subject:\s*)/i, '');

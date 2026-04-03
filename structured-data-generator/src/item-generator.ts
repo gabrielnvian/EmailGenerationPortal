@@ -49,6 +49,7 @@ async function generateGroup(
   provider: FormatProvider,
   prevThreadTail?: { senderName: string; body: string }[],
   completedTitles?: string[],
+  model?: string,
 ): Promise<ItemGroup> {
   const groupId = randomHex(16);
   const messages: GeneratedItem[] = [];
@@ -80,6 +81,7 @@ async function generateGroup(
       context,
       temperature: 0.9,
       ...(stopSequences.length ? { stop: stopSequences } : {}),
+      ...(model ? { model } : {}),
     });
 
     context = result.context;

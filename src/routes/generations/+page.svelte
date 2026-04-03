@@ -141,6 +141,9 @@
 						<div class="flex items-center gap-3 min-w-0">
 							<span class="text-xs text-white/30 font-mono">#{row.id}</span>
 							<span class="badge-blue">{row.domain ?? 'email'}</span>
+							{#if row.model}
+								<span class="badge-purple">{row.model}</span>
+							{/if}
 							<span class="text-sm font-semibold text-white truncate">{row.persona_0_name}</span>
 							<span class="text-xs text-white/30">↔</span>
 							<span class="text-sm font-semibold text-white truncate">{row.persona_1_name}</span>

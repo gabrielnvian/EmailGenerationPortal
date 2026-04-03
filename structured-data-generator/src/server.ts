@@ -198,6 +198,8 @@ const handleGenerate: RouteHandler = async (req, res) => {
     return json(res, 400, { success: false, error: '"relationship" is required' });
   }
 
+  const model = typeof body.model === 'string' && body.model.trim() ? body.model.trim() : undefined;
+
   const request: GenerateRequest = {
     domain: (body.domain as DomainType) || 'email',
     personas: body.personas as Persona[],
@@ -205,15 +207,16 @@ const handleGenerate: RouteHandler = async (req, res) => {
     arc: typeof body.arc === 'string' ? body.arc : undefined,
     threadCount: Math.min(Math.max(typeof body.threadCount === 'number' ? body.threadCount : 3, 1), 20),
     timespan: typeof body.timespan === 'string' ? body.timespan : '3 months',
+    model,
   };
 
-  console.log(`Generating timeline (${request.domain}): ${request.threadCount} groups over ${request.timespan}`);
+  console.log(`Generating timeline (${request.domain}): ${request.threadCount} groups over ${request.timespan}${model ? ` [${model}]` : ''}`);
 
   const startTime = Date.now();
   const result = await generateTimeline(request);
   const durationMs = Date.now() - startTime;
 
-  const id = saveGeneration({ request, response: result, durationMs });
+  const id = saveGeneration({ request, response: result, durationMs, model });
   console.log(`Saved generation #${id} (${durationMs}ms)`);
 
   json(res, 200, { success: true, id, data: result });

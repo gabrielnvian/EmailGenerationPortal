@@ -66,6 +66,11 @@ function getDb(): DatabaseType {
 
   db.exec(`CREATE INDEX IF NOT EXISTS idx_gen_domain ON generations(domain)`);
 
+  // Migration: add model column
+  if (!colNames.includes('model')) {
+    db.exec(`ALTER TABLE generations ADD COLUMN model TEXT`);
+  }
+
   process.on('SIGTERM', () => {
     if (db) {
       db.pragma('wal_checkpoint(TRUNCATE)');
@@ -81,10 +86,12 @@ function saveGeneration({
   request,
   response,
   durationMs,
+  model,
 }: {
   request: GenerateRequest;
   response: GenerateResult;
   durationMs: number;
+  model?: string;
 }): number | bigint {
   const db = getDb();
 
@@ -94,13 +101,13 @@ function saveGeneration({
       persona_0_name, persona_0_email,
       persona_1_name, persona_1_email,
       relationship, arc,
-      thread_count, message_count, timespan_days, duration_ms
+      thread_count, message_count, timespan_days, duration_ms, model
     ) VALUES (
       @request, @response, @domain,
       @p0name, @p0email,
       @p1name, @p1email,
       @relationship, @arc,
-      @threadCount, @messageCount, @timespanDays, @durationMs
+      @threadCount, @messageCount, @timespanDays, @durationMs, @model
     )
   `);
 
@@ -118,6 +125,7 @@ function saveGeneration({
     messageCount: response.summary?.totalMessages || 0,
     timespanDays: response.summary?.timespanDays || 0,
     durationMs: durationMs || 0,
+    model: model ?? null,
   });
 
   db.pragma('wal_checkpoint(PASSIVE)');
@@ -174,7 +182,7 @@ function searchGenerations({
     SELECT id, created_at, domain, persona_0_name, persona_0_email,
            persona_1_name, persona_1_email,
            relationship, arc, thread_count, message_count,
-           timespan_days, duration_ms
+           timespan_days, duration_ms, model
     FROM generations
     ${where}
     ORDER BY id DESC

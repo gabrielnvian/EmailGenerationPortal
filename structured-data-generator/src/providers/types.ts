@@ -92,6 +92,7 @@ export interface DomainAdapter {
     itemsPerGroup: number[],
     completedTitles?: string[],
     lastMessageBody?: string,
+    model?: string,
   ): Promise<string>;
 
   generateItemCounts(groupCount: number): number[];

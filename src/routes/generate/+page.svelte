@@ -6,6 +6,7 @@
 	import {onMount} from "svelte";
 	import type {Persona} from "../../personas.model";
 	import TimelineView from "../TimelineView.svelte";
+	import {PUBLIC_MODELS} from '$env/static/public';
 
 	// --- Persona selection + per-persona extras ---
 	let personaIdxLeft: number = -1;
@@ -23,6 +24,10 @@
 	onMount(async () => {
 		availableDomains = await fetchDomains();
 	});
+
+	// --- Model ---
+	const modelOptions = PUBLIC_MODELS.split(',').map((m: string) => m.trim()).filter(Boolean);
+	let selectedModel: string = modelOptions[0] ?? '';
 
 	// --- Generation fields ---
 	let relationship: string = "";
@@ -59,6 +64,7 @@
 			threadCount,
 			timespan: timespan.trim() || undefined,
 			domain: selectedDomain,
+			model: selectedModel || undefined,
 		});
 
 		if (result.success) {
@@ -176,7 +182,7 @@
 			></textarea>
 		</div>
 
-		<div class="grid grid-cols-3 gap-4">
+		<div class="grid grid-cols-4 gap-4">
 			<div class="flex flex-col gap-1.5">
 				<label class="text-xs text-white/70 font-medium" for="domain-select">Domain</label>
 				<select id="domain-select" class="field" bind:value={selectedDomain}>
@@ -185,6 +191,16 @@
 					{/each}
 				</select>
 			</div>
+			{#if modelOptions.length > 1}
+			<div class="flex flex-col gap-1.5">
+				<label class="text-xs text-white/70 font-medium" for="model-select">Model</label>
+				<select id="model-select" class="field" bind:value={selectedModel}>
+					{#each modelOptions as m}
+						<option value={m}>{m}</option>
+					{/each}
+				</select>
+			</div>
+			{/if}
 			<div class="flex flex-col gap-1.5">
 				<label class="text-xs text-white/70 font-medium" for="thread-count-input">{selectedDomain === 'calendar' ? 'Event count' : 'Thread count'}</label>
 				<input id="thread-count-input" class="field" bind:value={threadCount} type="number" min="1" max="20"/>

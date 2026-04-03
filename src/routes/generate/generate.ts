@@ -94,6 +94,7 @@ export type GenerateRequest = {
 	threadCount?: number;
 	timespan?: string;
 	domain?: Domain;
+	model?: string;
 };
 
 export function personaToGeneratePersona(
@@ -158,6 +159,7 @@ export async function generate(request: GenerateRequest): Promise<GenerateResult
 		if (request.arc) body.arc = request.arc;
 		if (request.threadCount !== undefined) body.threadCount = request.threadCount;
 		if (request.timespan) body.timespan = request.timespan;
+		if (request.model) body.model = request.model;
 
 		const response = await fetch(PUBLIC_GENERATE_URL, {
 			method: 'POST',

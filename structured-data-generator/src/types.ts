@@ -140,6 +140,7 @@ export interface OllamaParams {
   context?: number[];
   temperature?: number;
   stop?: string[];
+  model?: string;
 }
 
 export interface OllamaResponse {
@@ -166,6 +167,7 @@ export interface GenerateRequest {
   arc?: string;
   threadCount?: number;
   timespan?: string;
+  model?: string;
 }
 
 // ── Database ──
@@ -186,6 +188,7 @@ export interface GenerationRow {
   message_count: number;
   timespan_days: number;
   duration_ms: number;
+  model: string | null;
 }
 
 export interface GenerationListRow {
@@ -202,6 +205,7 @@ export interface GenerationListRow {
   message_count: number;
   timespan_days: number;
   duration_ms: number;
+  model: string | null;
 }
 
 export interface SearchParams {

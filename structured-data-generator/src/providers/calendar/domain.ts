@@ -88,6 +88,7 @@ export class CalendarDomainAdapter implements DomainAdapter {
     _itemsPerGroup: number[],
     completedTitles?: string[],
     _lastMessageBody?: string,
+    model?: string,
   ): Promise<string> {
     const startIdx = groupBoundaries[groupIndex];
     const sentiment = sentimentTimeline[startIdx] || 'neutral';
@@ -107,6 +108,7 @@ Generate a calendar event title for event ${groupIndex + 1} of ${groupCount}.`;
       system: 'Generate a realistic calendar event title for a business meeting. Output ONLY the title. No quotes, no prefix, no explanation. Keep it short (3-8 words).',
       prompt,
       temperature: 1.0,
+      ...(model ? { model } : {}),
     });
 
     const title = response.replace(/^["']|["']$/g, '').trim();

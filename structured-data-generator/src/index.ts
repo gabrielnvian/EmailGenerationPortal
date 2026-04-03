@@ -19,6 +19,7 @@ async function generateTimeline({
   arc,
   threadCount = 3,
   timespan = '3 months',
+  model,
 }: GenerateRequest): Promise<GenerateResult> {
   const adapter = getDomainAdapterByType(domain);
   // Use first provider for this domain (prompts are identical within a domain)
@@ -51,11 +52,12 @@ async function generateTimeline({
       plan.itemsPerGroup,
       [...completedTitles],
       prevThreadTail[prevThreadTail.length - 1]?.body,
+      model,
     );
     groupPlan.title = title;
 
     process.stderr.write(`  group ${i + 1}/${plan.groups.length}: "${title}"\n`);
-    const group = await generateGroup(groupPlan, personas, relationship, provider, prevThreadTail, [...completedTitles]);
+    const group = await generateGroup(groupPlan, personas, relationship, provider, prevThreadTail, [...completedTitles], model);
 
     // Per-group relationship scoring dimensions
     const groupDates = groupPlan.messages.map((m) => new Date(m.date));

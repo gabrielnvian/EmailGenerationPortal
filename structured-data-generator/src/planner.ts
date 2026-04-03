@@ -196,7 +196,6 @@ function pickPersonalDetails(messageIndex: number, totalMessages: number, sender
 
 async function planTimeline(
   personas: Persona[],
-  relationship: string,
   arc: string | undefined,
   groupCount: number,
   timespan: string,
@@ -218,9 +217,6 @@ async function planTimeline(
   }
 
   const dates = generateDates(totalItems, groupBoundaries, timespanDays);
-
-  process.stderr.write('  generating titles...\n');
-  const titles = await adapter.generateGroupTitles(groupCount, personas, relationship, sentimentTimeline, groupBoundaries, itemsPerGroup);
 
   const arcDescription = arcSegments.join(' → ');
   const groups: GroupPlan[] = [];
@@ -261,10 +257,10 @@ async function planTimeline(
       msgIdx++;
     }
 
-    groups.push({ title: titles[g], messages });
+    groups.push({ title: '', messages });
   }
 
-  return { arc: arcDescription, groups };
+  return { arc: arcDescription, groups, sentimentTimeline, groupBoundaries, itemsPerGroup };
 }
 
 export { planTimeline };

@@ -78,42 +78,39 @@ export class CalendarDomainAdapter implements DomainAdapter {
     return Array(groupCount).fill(1);
   }
 
-  async generateGroupTitles(
+  async generateGroupTitle(
+    groupIndex: number,
     groupCount: number,
     personas: Persona[],
     relationship: string,
     sentimentTimeline: Sentiment[],
     groupBoundaries: number[],
     _itemsPerGroup: number[],
-  ): Promise<string[]> {
-    const titles: string[] = [];
+    completedTitles?: string[],
+    _lastMessageBody?: string,
+  ): Promise<string> {
+    const startIdx = groupBoundaries[groupIndex];
+    const sentiment = sentimentTimeline[startIdx] || 'neutral';
+    const stage = STAGE_MAP[sentiment] || 'establishing';
 
-    for (let t = 0; t < groupCount; t++) {
-      const startIdx = groupBoundaries[t];
-      const sentiment = sentimentTimeline[startIdx] || 'neutral';
-      const stage = STAGE_MAP[sentiment] || 'establishing';
+    process.stderr.write(`  event title ${groupIndex + 1}/${groupCount}...`);
 
-      process.stderr.write(`  event title ${t + 1}/${groupCount}...`);
-
-      let prompt = `${personas[0].name} (${personas[0].jobTitle}, ${personas[0].company}) and ${personas[1].name} (${personas[1].jobTitle}, ${personas[1].company}).
+    let prompt = `${personas[0].name} (${personas[0].jobTitle}, ${personas[0].company}) and ${personas[1].name} (${personas[1].jobTitle}, ${personas[1].company}).
 Relationship: ${relationship}. Stage: ${stage}. Mood: ${sentiment}.
-Generate a calendar event title for event ${t + 1} of ${groupCount}.`;
+Generate a calendar event title for event ${groupIndex + 1} of ${groupCount}.`;
 
-      if (titles.length > 0) {
-        prompt += `\nPrevious events were: ${titles.map((s, i) => `${i + 1}. "${s}"`).join(', ')}. Do NOT repeat — pick a different type of meeting or angle.`;
-      }
-
-      const { response } = await generate({
-        system: 'Generate a realistic calendar event title for a business meeting. Output ONLY the title. No quotes, no prefix, no explanation. Keep it short (3-8 words).',
-        prompt,
-        temperature: 1.0,
-      });
-
-      const title = response.replace(/^["']|["']$/g, '').trim();
-      titles.push(title);
-      process.stderr.write(` "${title}"\n`);
+    if (completedTitles && completedTitles.length > 0) {
+      prompt += `\nPrevious events were: ${completedTitles.map((s, i) => `${i + 1}. "${s}"`).join(', ')}. Do NOT repeat — pick a different type of meeting or angle.`;
     }
 
-    return titles;
+    const { response } = await generate({
+      system: 'Generate a realistic calendar event title for a business meeting. Output ONLY the title. No quotes, no prefix, no explanation. Keep it short (3-8 words).',
+      prompt,
+      temperature: 1.0,
+    });
+
+    const title = response.replace(/^["']|["']$/g, '').trim();
+    process.stderr.write(` "${title}"\n`);
+    return title;
   }
 }

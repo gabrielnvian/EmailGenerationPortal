@@ -108,44 +108,46 @@ export class EmailDomainAdapter implements DomainAdapter {
     return counts;
   }
 
-  async generateGroupTitles(
+  async generateGroupTitle(
+    groupIndex: number,
     groupCount: number,
     personas: Persona[],
     relationship: string,
     sentimentTimeline: Sentiment[],
     groupBoundaries: number[],
     itemsPerGroup: number[],
-  ): Promise<string[]> {
-    const subjects: string[] = [];
+    completedTitles?: string[],
+    lastMessageBody?: string,
+  ): Promise<string> {
+    const startIdx = groupBoundaries[groupIndex];
+    const endIdx = startIdx + itemsPerGroup[groupIndex];
+    const threadSentiments = sentimentTimeline.slice(startIdx, endIdx);
+    const sentiment = threadSentiments[Math.floor(threadSentiments.length / 2)];
+    const stage = STAGE_MAP[sentiment] || 'establishing';
 
-    for (let t = 0; t < groupCount; t++) {
-      const startIdx = groupBoundaries[t];
-      const endIdx = startIdx + itemsPerGroup[t];
-      const threadSentiments = sentimentTimeline.slice(startIdx, endIdx);
-      const sentiment = threadSentiments[Math.floor(threadSentiments.length / 2)];
-      const stage = STAGE_MAP[sentiment] || 'establishing';
+    process.stderr.write(`  subject ${groupIndex + 1}/${groupCount}...`);
 
-      process.stderr.write(`  subject ${t + 1}/${groupCount}...`);
-
-      let prompt = `${personas[0].name} (${personas[0].jobTitle}, ${personas[0].company}) and ${personas[1].name} (${personas[1].jobTitle}, ${personas[1].company}).
+    let prompt = `${personas[0].name} (${personas[0].jobTitle}, ${personas[0].company}) and ${personas[1].name} (${personas[1].jobTitle}, ${personas[1].company}).
 Relationship: ${relationship}. Stage: ${stage}. Mood: ${sentiment}.
-Generate a subject line for thread ${t + 1} of ${groupCount}.`;
+Generate a subject line for thread ${groupIndex + 1} of ${groupCount}.`;
 
-      if (subjects.length > 0) {
-        prompt += `\nPrevious threads were: ${subjects.map((s, i) => `${i + 1}. "${s}"`).join(', ')}. Do NOT repeat or rephrase these — pick a different topic or angle.`;
-      }
-
-      const { response } = await generate({
-        system: 'Generate a realistic business email subject line. Output ONLY the subject line. No quotes, no prefix, no explanation.',
-        prompt,
-        temperature: 1.0,
-      });
-
-      const subject = response.replace(/^["']|["']$/g, '').replace(/^(Subject:\s*)/i, '');
-      subjects.push(subject);
-      process.stderr.write(` "${subject}"\n`);
+    if (completedTitles && completedTitles.length > 0) {
+      prompt += `\nPrevious threads were: ${completedTitles.map((s, i) => `${i + 1}. "${s}"`).join(', ')}. Do NOT repeat or rephrase these — pick a different topic or angle.`;
     }
 
-    return subjects;
+    if (lastMessageBody) {
+      prompt += `\nThe previous thread ended with:\n"${lastMessageBody}"`;
+      prompt += `\nThe new subject should naturally continue from or acknowledge that context.`;
+    }
+
+    const { response } = await generate({
+      system: 'Generate a realistic business email subject line. Output ONLY the subject line. No quotes, no prefix, no explanation.',
+      prompt,
+      temperature: 1.0,
+    });
+
+    const subject = response.replace(/^["']|["']$/g, '').replace(/^(Subject:\s*)/i, '');
+    process.stderr.write(` "${subject}"\n`);
+    return subject;
   }
 }

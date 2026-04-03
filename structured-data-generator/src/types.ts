@@ -81,6 +81,9 @@ export interface GroupPlan {
 export interface TimelinePlan {
   arc: string;
   groups: GroupPlan[];
+  sentimentTimeline: Sentiment[];
+  groupBoundaries: number[];
+  itemsPerGroup: number[];
 }
 
 // ── Generated output ──

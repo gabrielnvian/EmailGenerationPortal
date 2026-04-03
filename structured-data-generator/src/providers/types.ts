@@ -82,14 +82,17 @@ export interface DomainAdapter {
     stage: RelationshipStage,
   ): number;
 
-  generateGroupTitles(
+  generateGroupTitle(
+    groupIndex: number,
     groupCount: number,
     personas: Persona[],
     relationship: string,
     sentimentTimeline: Sentiment[],
     groupBoundaries: number[],
     itemsPerGroup: number[],
-  ): Promise<string[]>;
+    completedTitles?: string[],
+    lastMessageBody?: string,
+  ): Promise<string>;
 
   generateItemCounts(groupCount: number): number[];
 }

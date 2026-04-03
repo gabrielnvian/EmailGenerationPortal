@@ -28,11 +28,11 @@ async function generateTimeline({
 
   // Phase 1: Plan the full timeline
   process.stderr.write('\n[1/2] Planning timeline...\n');
-  const plan = await planTimeline(personas, relationship, arc, threadCount, timespan, adapter);
+  const plan = await planTimeline(personas, arc, threadCount, timespan, adapter);
   process.stderr.write(`  arc: ${plan.arc}\n`);
   process.stderr.write(`  groups: ${plan.groups.length}\n\n`);
 
-  // Phase 2: Generate each group sequentially
+  // Phase 2: Generate titles and bodies for each group sequentially
   process.stderr.write('[2/2] Generating groups...\n');
   const timeline: ItemGroup[] = [];
   let prevThreadTail: { senderName: string; body: string }[] = [];
@@ -40,7 +40,21 @@ async function generateTimeline({
 
   for (let i = 0; i < plan.groups.length; i++) {
     const groupPlan = plan.groups[i];
-    process.stderr.write(`  group ${i + 1}/${plan.groups.length}: "${groupPlan.title}"\n`);
+
+    const title = await adapter.generateGroupTitle(
+      i,
+      plan.groups.length,
+      personas,
+      relationship,
+      plan.sentimentTimeline,
+      plan.groupBoundaries,
+      plan.itemsPerGroup,
+      [...completedTitles],
+      prevThreadTail[prevThreadTail.length - 1]?.body,
+    );
+    groupPlan.title = title;
+
+    process.stderr.write(`  group ${i + 1}/${plan.groups.length}: "${title}"\n`);
     const group = await generateGroup(groupPlan, personas, relationship, provider, prevThreadTail, [...completedTitles]);
 
     // Per-group relationship scoring dimensions

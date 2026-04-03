@@ -14,3 +14,5 @@ pnpm run build
 
 # Move the test report into the build output so it's served alongside the app.
 cp -r ./vitest-report ./build/test-report
+
+systemctl restart web-server.service
